@@ -2,6 +2,7 @@
 
 using UnrealBuildTool;
 using System.Collections.Generic;
+using System;
 
 public class SampleNHSDKUE427Target : TargetRules
 {
@@ -9,11 +10,11 @@ public class SampleNHSDKUE427Target : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-        if (Target.Platform == UnrealTargetPlatform.IOS)
-        {
-            bOverrideBuildEnvironment = true;
-            AdditionalCompilerArguments = "-Wno-unused-but-set-variable";
-        }
+
+		if(Target.Platform == UnrealTargetPlatform.Mac || Target.Platform == UnrealTargetPlatform.IOS) {
+	        bOverrideBuildEnvironment = true;
+	        AdditionalCompilerArguments = " -Wno-unused-but-set-variable";
+		}
 
         ExtraModuleNames.AddRange( new string[] { "SampleNHSDKUE427" } );
 	}
