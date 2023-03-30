@@ -6,6 +6,7 @@
 .vscode
 Binaries
 Build
+!/Build/Android/ue4commandline.txt
 DerivedDataCache
 Intermediate
 Saved
