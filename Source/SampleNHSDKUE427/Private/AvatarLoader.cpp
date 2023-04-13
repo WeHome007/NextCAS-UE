@@ -50,16 +50,18 @@ void AAvatarLoader::LoadAvatar() {
     if (!Avatar) {
         return;
     }
-    Avatar->SetActorLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
-    static const FString TempAvatarId = TEXT("avatar_64241b207f42de7d0775140d");
-    Avatar->SetAvatarId(/* Put Avatar Id here */ TempAvatarId, [=](int32 Code, const FString& Message) {
-        UE_LOG(LogTemp, Warning, TEXT("SetAvatarId(%s): %d %s"), *TempAvatarId, Code, *Message);
-        if (Code == 0) {
-            // Success
-            FString CoverallId = TEXT("coverall_64312f6f10809e0df45537a7");
-            Avatar->AddBundleById(CoverallId, [=](int32 Code, const FString& Message) {
-                UE_LOG(LogTemp, Warning, TEXT("AddBundleById(%s): %d %s"), *CoverallId, Code, *Message);
-            });
-        }
+    static const FString AvatarId = TEXT("avatar_64241b207f42de7d0775140d");
+    static const FString BodyId = TEXT("body_642413f6178b9538264e6a8e");
+    static const FString CoverallId = TEXT("coverall_64312f6f10809e0df45537a7");
+
+    INextHumanSDKModule::Get().PrepareResource(BodyId, [=](int32 Code, const FString& Message) {
+        Avatar->SetAvatarId(/* Put Avatar Id here */ AvatarId, [=](int32 Code, const FString& Message) {
+            UE_LOG(LogTemp, Warning, TEXT("SetAvatarId(%s): %d %s"), *AvatarId, Code, *Message);
+            if (Code == 0) {
+                Avatar->AddBundleById(CoverallId, [=](int32 Code, const FString& Message) {
+                    UE_LOG(LogTemp, Warning, TEXT("AddBundleById(%s): %d %s"), *CoverallId, Code, *Message);
+                });
+            }
+        });
     });
 }
