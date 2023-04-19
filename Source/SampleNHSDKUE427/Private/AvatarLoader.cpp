@@ -6,6 +6,8 @@
 #include "NextAvatar.h"
 #include "RunChain.h"
 
+#include "Misc/DataDrivenPlatformInfoRegistry.h"
+
 // Sets default values
 AAvatarLoader::AAvatarLoader()
 {
@@ -58,6 +60,9 @@ void AAvatarLoader::LoadAvatar() {
 	static const FString ClothId = TEXT("cloth_6437c90d9181074839341076");
 	static const FString ShoesId = TEXT("shoes_6437d1b39181074839341077");
 	static const FString TrousersId = TEXT("trouser_6437d2829181074839341078");
+	static const FString HairId = TEXT("hair_643cb3f3d46ccd6078f72385");
+	static const FString EyebrowId = TEXT("eyebrow_643cb7b016938c6c359608f2");
+	static const FString Eyelash = TEXT("eyelash_643cdab716938c6c359608f3");
 
 	using nexthuman::sdk::demo::FRet;
 	using nexthuman::sdk::demo::TTaskChain;
@@ -97,43 +102,39 @@ void AAvatarLoader::LoadAvatar() {
 		Avatar->SetAvatarId(/* Put Avatar Id here */ AvatarId, [=](int32 Code, const FString& Message, int64 Id) {
 			OnStepEnd(FTestRet{ Code, Message });
 		});
-	});
-
-	for (int i = 0; i < 1; i++) {
-		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			Avatar->AddBundleById(ClothId, [=](int32 Code, const FString& Message, int64 Id) {
-				OnStepEnd(FTestRet{ Code, Message, Id });
-			});
-		}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			Avatar->AddBundleById(ShoesId, [=](int32 Code, const FString& Message, int64 Id) {
-				OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Id});
-			});
-		}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			Avatar->AddBundleById(TrousersId, [=](int32 Code, const FString& Message, int64 Id) {
-				OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Id });
-			});
-		}).AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			FTimerHandle TH;
-			GetWorldTimerManager().SetTimer(TH, [=]() {
-				Avatar->RemoveBundle(Last.ClothId);
-				OnStepEnd(FTestRet{ 0, TEXT(""), INT64_MIN, Last.ShoesId, Last.TrousersId });
-			}, 3.0, false);
-		}).AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			FTimerHandle TH;
-			GetWorldTimerManager().SetTimer(TH, [=]() {
-				Avatar->RemoveBundle(Last.ShoesId);
-				OnStepEnd(FTestRet{ 0, TEXT(""), INT64_MIN, INT64_MIN, Last.TrousersId });
-			}, 3.0, false);
-		}).AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			FTimerHandle TH;
-			GetWorldTimerManager().SetTimer(TH, [=]() {
-				Avatar->RemoveBundle(Last.TrousersId);
-				OnStepEnd(FTestRet{ 0, TEXT(""), INT64_MIN, INT64_MIN, INT64_MIN });
-			}, 3.0, false);
+	})
+		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->AddBundleById(ClothId, [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message, Id });
 		});
-	}
+	})
+		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->AddBundleById(ShoesId, [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Id });
+		});
+	})
+		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->AddBundleById(TrousersId, [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Id });
+		});
+	})
+		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->AddBundleById(HairId, [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Last.TrousersId });
+		});
+	})
+		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->AddBundleById(EyebrowId, [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Last.TrousersId });
+		});
+	})
+		;
 
 	Tasks.Start([=](const FTestRet& Last) {
+		for (auto& Info : FDataDrivenPlatformInfoRegistry::GetAllPlatformInfos()) {
+			UE_LOG(LogTemp, Warning, TEXT("DDPI %s"), *Info.Key);
+			UE_LOG(LogTemp, Warning, TEXT("\tFreezing_bAlignBases %d"), Info.Value.Freezing_bAlignBases);
+		}
 		UE_LOG(LogTemp, Warning, TEXT("==>> End"));
 	});
 }
