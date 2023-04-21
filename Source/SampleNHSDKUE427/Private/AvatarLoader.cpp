@@ -7,7 +7,7 @@
 #include "NHCategory.h"
 #include "RunChain.h"
 
-#include "Misc/DataDrivenPlatformInfoRegistry.h"
+using namespace nexthuman::sdk;
 
 // Sets default values
 AAvatarLoader::AAvatarLoader()
@@ -54,16 +54,21 @@ void AAvatarLoader::LoadAvatar() {
 	if (!Avatar) {
 		return;
 	}
-	//female
-	static const FString AvatarId = TEXT("avatar_64241b207f42de7d0775140d");
-	static const FString BodyId = TEXT("body_642413f6178b9538264e6a8e");
-	static const FString CoverallId = TEXT("coverall_64312f6f10809e0df45537a7");
-	static const FString ClothId = TEXT("cloth_6437c90d9181074839341076");
-	static const FString ShoesId = TEXT("shoes_6437d1b39181074839341077");
-	static const FString TrousersId = TEXT("trouser_6437d2829181074839341078");
-	static const FString HairId = TEXT("hair_643cb3f3d46ccd6078f72385");
-	static const FString EyebrowId = TEXT("eyebrow_643cb7b016938c6c359608f2");
-	static const FString Eyelash = TEXT("eyelash_643cdab716938c6c359608f3");
+
+	// female assets
+	TMap<FString, FString> FA {
+		{CATEGORY_AVATAR, TEXT("avatar_64241b207f42de7d0775140d")},
+		{CATEGORY_BODY, TEXT("body_642413f6178b9538264e6a8e")},
+		{CATEGORY_COVERALL, TEXT("coverall_64312f6f10809e0df45537a7")},
+		{CATEGORY_CLOTH, TEXT("cloth_6437c90d9181074839341076")},
+		{CATEGORY_SHOES, TEXT("shoes_6437d1b39181074839341077")},
+		{CATEGORY_TROUSER, TEXT("trouser_6437d2829181074839341078")},
+		{CATEGORY_HAIR, TEXT("hair_643cb3f3d46ccd6078f72385")},
+		{CATEGORY_EYEBROW, TEXT("eyebrow_643cb7b016938c6c359608f2")},
+		{CATEGORY_EYELASH, TEXT("eyelash_643cdab716938c6c359608f3")},
+		{CATEGORY_ANIMATION_BODY, TEXT("skeani_64421d63c6745f0f67a92205")},
+		{CATEGORY_ANIMATION_FACE, TEXT("faceani_6442437ec6745f0f67a92207")},
+	};
 
 	using nexthuman::sdk::demo::FRet;
 	using nexthuman::sdk::demo::TTaskChain;
@@ -71,38 +76,27 @@ void AAvatarLoader::LoadAvatar() {
 		int64 ClothId;
 		int64 ShoesId;
 		int64 TrousersId;
-		FTestRet(int32 InCode, FString InMessage, int64 InClothId = INT64_MIN, int64 InShoesId = INT64_MIN, int64 InTrousersId = INT64_MIN):FRet(InCode, InMessage), ClothId(InClothId), ShoesId(InShoesId), TrousersId(InTrousersId) {}
+		FTestRet(int32 InCode = 0, FString InMessage = TEXT(""), int64 InClothId = INT64_MIN, int64 InShoesId = INT64_MIN, int64 InTrousersId = INT64_MIN) :FRet(InCode, InMessage), ClothId(InClothId), ShoesId(InShoesId), TrousersId(InTrousersId) {}
 	};
 	typedef TTaskChain<FTestRet> FTaskChain;
+	INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
 	FTaskChain& Tasks = FTaskChain::Create(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(AvatarId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(BodyId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(CoverallId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(ClothId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(ShoesId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		INextHumanSDKModule::Get().PrepareResource(TrousersId, [=](int32 Code, const FString& Message) {
-			OnStepEnd(FTestRet{ Code, Message });
-		});
-	}).AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->SetAvatarId(/* Put Avatar Id here */ AvatarId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message });
+		OnStepEnd(FTestRet{});
+	});
 
+	// Cache resource
+	for (auto& Pair : FA) {
+		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &SDK](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+			SDK.PrepareResource(Pair.Value, [=](int32 Code, const FString& Message) {
+				OnStepEnd(FTestRet{ Code, Message });
+			});
+		});
+	}
+
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->SetAvatarId(FA[CATEGORY_AVATAR], [=](int32 Code, const FString& Message, int64 Id) {
+			OnStepEnd(FTestRet{ Code, Message });
 			{
 				// struct HeadMorphParam
 				// {
@@ -266,53 +260,37 @@ void AAvatarLoader::LoadAvatar() {
 
 				const FString Category = CATEGORY_MORPH_HEAD;		// CATEGORY_MORPH_XX
 				const FString Key = "Height";						// Category对应的参数列表
-				const float Value = 0.5;							// -1 ~ 1
-				// 将头部高度morph值改为0.5
+				const float Value = 0.05;							// -1 ~ 1
+				// 将头部高度morph值改为0.05
 				Avatar->GetBody()->GetFace()->ChangeMorphValue(Category, Key, Value);
 			}
-			
 		});
-	})
-		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->AddBundleById(ClothId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message, Id });
-		});
-	})
-		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->AddBundleById(ShoesId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Id });
-		});
-	})
-		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->AddBundleById(TrousersId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Id });
-		});
-	})
-		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->AddBundleById(HairId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Last.TrousersId });
+	});
 
-			{
-				const FString Category = CATEGORY_HAIR;		// 毛发类型
-				FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
-				Param.Color = FLinearColor::Blue;
-				// 将当前头发的颜色改为蓝色
-				Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
-			}
+	for (auto& Cate : TArray<FString>{
+		CATEGORY_CLOTH,
+		CATEGORY_SHOES,
+		CATEGORY_TROUSER,
+		CATEGORY_HAIR,
+		CATEGORY_ANIMATION_BODY,
+		CATEGORY_ANIMATION_FACE,
+		CATEGORY_EYEBROW
+		}) {
+		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+			Avatar->AddBundleById(FA[Cate], [=](int32 Code, const FString& Message, int64 Id) {
+				if (Cate == CATEGORY_HAIR && Code == 0) {
+					const FString Category = CATEGORY_HAIR;		// 毛发类型
+					FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
+					Param.Color = FLinearColor::Black;
+					// 将当前头发的颜色改为黑色
+					Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
+				}
+				OnStepEnd(FTestRet{ Code, Message });
+			});
 		});
-	})
-		.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->AddBundleById(EyebrowId, [=](int32 Code, const FString& Message, int64 Id) {
-			OnStepEnd(FTestRet{ Code, Message, Last.ClothId, Last.ShoesId, Last.TrousersId });
-		});
-	})
-		;
+	}
 
 	Tasks.Start([=](const FTestRet& Last) {
-		for (auto& Info : FDataDrivenPlatformInfoRegistry::GetAllPlatformInfos()) {
-			UE_LOG(LogTemp, Warning, TEXT("DDPI %s"), *Info.Key);
-			UE_LOG(LogTemp, Warning, TEXT("\tFreezing_bAlignBases %d"), Info.Value.Freezing_bAlignBases);
-		}
-		UE_LOG(LogTemp, Warning, TEXT("==>> End"));
+		UE_LOG(LogTemp, Warning, TEXT("==>> End %d %s"), Last.Code, *Last.Message);
 	});
 }
