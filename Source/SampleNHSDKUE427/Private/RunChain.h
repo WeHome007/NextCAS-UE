@@ -57,7 +57,7 @@ namespace nexthuman
 
                 TArray<FTaskInfo> Tasks;
                 void RunAt(int32 Index, RET PreviousRet, FCallback Callback) {
-                    UE_LOG(LogTemp, Display, TEXT("RunAt Begin %d"), Index);
+                    //UE_LOG(LogTemp, Display, TEXT("RunAt Begin %d"), Index);
                     check(Index >= 0 && Index < Tasks.Num());
                     FTaskInfo& Task = Tasks[Index];
                     AsyncTask(Task.ThreadName, [=]()
@@ -65,9 +65,9 @@ namespace nexthuman
                             UE_LOG(LogTemp, Display, TEXT("Run %d"), Index);
                             Task.Task(PreviousRet, [=](RET Ret)
                                 {
-                                    UE_LOG(LogTemp, Display, TEXT("RunAt End %d %d %s"), Index, Ret.Code, *Ret.Message);
+                                    //UE_LOG(LogTemp, Display, TEXT("RunAt End %d %d %s"), Index, Ret.Code, *Ret.Message);
                                     if (Ret.Code != 0 || Index + 1 == Tasks.Num()) {
-                                        UE_LOG(LogTemp, Display, TEXT("Run Complete %d"), Index);
+                                        //UE_LOG(LogTemp, Display, TEXT("Run Complete %d"), Index);
                                         Callback(Ret);
                                         return;
                                     }
