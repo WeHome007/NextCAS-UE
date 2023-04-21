@@ -24,5 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	void LoadAvatar();
+	void LoadAvatar(const TMap<FString, FString>& Assets, const FVector& Position, const FRotator& Rotation);
 };

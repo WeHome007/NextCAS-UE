@@ -22,41 +22,8 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 	static const FString TempAccessToken = "J+W+sX+b1zYiKgQcVLh5rlRCGbu8rKWrA/UYqfe6qSFIblSL0z0JQ8mF4Y6lYgkYuap95BSjcPhOOuLLr9cOw6TY/65sB7DfBBYCnoB8noxDXnj7s918/0nw+yvcY8WXl2HcbswMBPDiBGT/Gc6eQg==";
-	if (!INextHumanSDKModule::Get().IsInitialized()) {
-
-		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken, /* optional: custom server address ,*/ [=](int32 Code, const FString& Message)
-		{
-			if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-				LoadAvatar();
-			}
-		});
-	}
-	else {
-		LoadAvatar();
-	}
-}
-
-// Called every frame
-void AAvatarLoader::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-
-void AAvatarLoader::LoadAvatar() {
-	UWorld* World = GetWorld();
-	if (!World) {
-		return;
-	}
-
-	auto Avatar = World->SpawnActor<ANextAvatar>(FVector(0, 0, 20), FRotator(0, 0, 0));
-	if (!Avatar) {
-		return;
-	}
-
 	// female assets
-	TMap<FString, FString> FA {
+	static const TMap<FString, FString> FA{
 		{CATEGORY_AVATAR, TEXT("avatar_64241b207f42de7d0775140d")},
 		{CATEGORY_BODY, TEXT("body_642413f6178b9538264e6a8e")},
 		{CATEGORY_COVERALL, TEXT("coverall_64312f6f10809e0df45537a7")},
@@ -69,6 +36,58 @@ void AAvatarLoader::LoadAvatar() {
 		{CATEGORY_ANIMATION_BODY, TEXT("skeani_64421d63c6745f0f67a92205")},
 		{CATEGORY_ANIMATION_FACE, TEXT("faceani_6442437ec6745f0f67a92207")},
 	};
+
+	// male assets
+	static const TMap<FString, FString> MA{
+		{CATEGORY_AVATAR, TEXT("avatar_64241b057f42de7d0775140c")},
+		{CATEGORY_BODY, TEXT("body_642412df178b9538264e6a8d")},
+		{CATEGORY_BEARD, TEXT("beard_6441229dc6745f0f67a92203")},
+		{CATEGORY_HAIR, TEXT("hair_644276a3f472c547bb215c2b")},
+
+		{CATEGORY_CLOTH, TEXT("cloth_64427ab843093f642a13d877")},
+		{CATEGORY_SHOES, TEXT("shoes_64427afb43093f642a13d879")},
+		{CATEGORY_TROUSER, TEXT("trouser_64427adc43093f642a13d878")},
+
+		{CATEGORY_COVERALL, TEXT("coverall_6434feb205a0d40a4d6f5d27")},
+		{CATEGORY_EYELASH, TEXT("eyelash_644276fc43093f642a13d876")},
+		{CATEGORY_ANIMATION_BODY, TEXT("skeani_64427654f472c547bb215c2a")},
+		{CATEGORY_ANIMATION_FACE, TEXT("faceani_644243a2886e096bfce937fb")},
+	};
+
+
+	if (!INextHumanSDKModule::Get().IsInitialized()) {
+		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken, /* optional: custom server address ,*/ [=](int32 Code, const FString& Message)
+		{
+			if (Code == INextHumanSDKModule::CODE_SUCCESS) {
+				LoadAvatar(FA, FVector(0, 50, 20), FRotator(0, 90, 0));
+				LoadAvatar(MA, FVector(0, -50, 20), FRotator(0, 90, 0));
+			}
+		});
+	}
+	else {
+		LoadAvatar(FA, FVector(0, 50, 20), FRotator(0, 90, 0));
+		LoadAvatar(MA, FVector(0, -50, 20), FRotator(0, 90, 0));
+	}
+}
+
+// Called every frame
+void AAvatarLoader::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+
+void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVector& Position, const FRotator& Rotation) {
+	UWorld* World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	auto Avatar = World->SpawnActor<ANextAvatar>(Position, Rotation);
+	if (!Avatar) {
+		return;
+	}
 
 	using nexthuman::sdk::demo::FRet;
 	using nexthuman::sdk::demo::TTaskChain;
@@ -86,7 +105,7 @@ void AAvatarLoader::LoadAvatar() {
 	});
 
 	// Cache resource
-	for (auto& Pair : FA) {
+	for (auto& Pair : Assets) {
 		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &SDK](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
 			SDK.PrepareResource(Pair.Value, [=](int32 Code, const FString& Message) {
 				OnStepEnd(FTestRet{ Code, Message });
@@ -95,7 +114,7 @@ void AAvatarLoader::LoadAvatar() {
 	}
 
 	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->SetAvatarId(FA[CATEGORY_AVATAR], [=](int32 Code, const FString& Message, int64 Id) {
+		Avatar->SetAvatarId(Assets[CATEGORY_AVATAR], [=](int32 Code, const FString& Message, int64 Id) {
 			OnStepEnd(FTestRet{ Code, Message });
 			{
 				// struct HeadMorphParam
@@ -274,19 +293,22 @@ void AAvatarLoader::LoadAvatar() {
 		CATEGORY_HAIR,
 		CATEGORY_ANIMATION_BODY,
 		CATEGORY_ANIMATION_FACE,
-		CATEGORY_EYEBROW
+		//CATEGORY_EYEBROW, // 眉毛有问题
+		CATEGORY_EYELASH,
 		}) {
 		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			Avatar->AddBundleById(FA[Cate], [=](int32 Code, const FString& Message, int64 Id) {
-				if (Cate == CATEGORY_HAIR && Code == 0) {
-					const FString Category = CATEGORY_HAIR;		// 毛发类型
-					FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
-					Param.Color = FLinearColor::Black;
-					// 将当前头发的颜色改为黑色
-					Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
-				}
-				OnStepEnd(FTestRet{ Code, Message });
-			});
+			if (Assets.Contains(Cate)) {
+				Avatar->AddBundleById(Assets[Cate], [=](int32 Code, const FString& Message, int64 Id) {
+					if (Cate == CATEGORY_HAIR && Code == 0) {
+						const FString Category = CATEGORY_HAIR;		// 毛发类型
+						FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
+						Param.Color = FLinearColor::Black;
+						// 将当前头发的颜色改为黑色
+						Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
+					}
+					OnStepEnd(FTestRet{ Code, Message });
+				});
+			}
 		});
 	}
 
