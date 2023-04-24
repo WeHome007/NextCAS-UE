@@ -54,19 +54,18 @@ void AAvatarLoader::BeginPlay()
 		{CATEGORY_ANIMATION_FACE, TEXT("faceani_644243a2886e096bfce937fb")},
 	};
 
-
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
 		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken, /* optional: custom server address ,*/ [=](int32 Code, const FString& Message)
 		{
 			if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-				LoadAvatar(FA, FVector(0, 50, 20), FRotator(0, 90, 0));
-				LoadAvatar(MA, FVector(0, -50, 20), FRotator(0, 90, 0));
+				LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
+				LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
 			}
 		});
 	}
 	else {
-		LoadAvatar(FA, FVector(0, 50, 20), FRotator(0, 90, 0));
-		LoadAvatar(MA, FVector(0, -50, 20), FRotator(0, 90, 0));
+		LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
+		LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
 	}
 }
 
