@@ -20,3 +20,5 @@ Saved
 /Plugins/NHMiniZip
 *.sln
 *.xcworkspace
+/Output
+/WindowsNoEditor
