@@ -10,6 +10,13 @@
 
 using namespace nexthuman::sdk;
 
+#define NH_CREATE_CALLBACK(Func)\
+	FNHCallback Callback;\
+	UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(GetWorld());\
+	Callbacks.Add(CallbackWrapper);\
+	CallbackWrapper->SetCallback(Func);\
+	Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
+
 // Sets default values
 AAvatarLoader::AAvatarLoader()
 {
@@ -74,7 +81,6 @@ void AAvatarLoader::BeginPlay()
 void AAvatarLoader::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 
@@ -123,50 +129,99 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 				// 将头部高度morph值改为0.05
 				Avatar->GetBody()->GetFace()->ChangeMorphValue(Category, Key, Value);
 			}
+
+			UNHCallbackWrapper* Callback = NewObject<UNHCallbackWrapper>(GetWorld());
 		});
 	});
 
-	for (auto& Cate : TArray<FString>{
-		//CATEGORY_COVERALL,
-		CATEGORY_CLOTH,
-		CATEGORY_TROUSER,
-		CATEGORY_SHOES,
-	}) {
-		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			if (Assets.Contains(Cate)) {
-				FNHCallback Callback;
-				TSharedPtr<UNHCallbackWrapper> CallbackWrapper = MakeShareable<UNHCallbackWrapper>(NewObject<UNHCallbackWrapper>());
-				CallbackWrapper->SetCallback([=](int32 Code, const FString& Message, int64 Id) {
-					OnStepEnd(FTestRet{ Code, Message });
-				});
-				Callback.BindUFunction(CallbackWrapper.Get(), TEXT("Run"));
-				Avatar->GetBody()->AddBundle(Assets[Cate], Callback);
-			}
+	int64 ClothIndex = -1;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &ClothIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=, &ClothIndex](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add cloth to body %d, %s, %d"), Code, *Message, Index);
+			ClothIndex = Index;
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->AddBundle(Assets[CATEGORY_CLOTH], Callback);
+	});
+
+	int64 TrousersIndex = -1;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &TrousersIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=, &TrousersIndex](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add trousers to body %d, %s, %d"), Code, *Message, Index);
+			TrousersIndex = Index;
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->AddBundle(Assets[CATEGORY_TROUSER], Callback);
+	});
+
+	int64 ShoesIndex = -1;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &ShoesIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=, &ShoesIndex](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add shoes to body %d, %s, %d"), Code, *Message, Index);
+			ShoesIndex = Index;
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->AddBundle(Assets[CATEGORY_SHOES], Callback);
+	});
+
+	int64 HairIndex = -1;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &HairIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=, &HairIndex](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add hair to face %d, %s, %d"), Code, *Message, Index);
+			HairIndex = Index;
+			OnStepEnd(FTestRet{ Code, Message });
+
+			const FString Category = CATEGORY_HAIR;		// 毛发类型
+			FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
+			Param.Color = FLinearColor::Black;
+			// 将当前头发的颜色改为黑色
+			Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->GetFace()->AddBundle(Assets[CATEGORY_HAIR], Callback);
+	});
+
+	int64 EyelashIndex = -1;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &EyelashIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=, &EyelashIndex](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add eyelash to face %d, %s, %d"), Code, *Message, Index);
+			EyelashIndex = Index;
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->GetFace()->AddBundle(Assets[CATEGORY_EYELASH], Callback);
+	});
+
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->SetAnim(Assets[CATEGORY_ANIMATION_BODY], Callback);
 		});
-	}
 
-	//for (auto& Cate : TArray<FString>{
-	//	CATEGORY_HAIR,
-	//	//CATEGORY_EYEBROW, // 眉毛有问题
-	//	CATEGORY_EYELASH,
-	//}) {
-	//	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-	//		if (Assets.Contains(Cate)) {
-	//			Avatar->AddBundleById(Assets[Cate], [=](int32 Code, const FString& Message, int64 Id) {
-	//				if (Cate == CATEGORY_HAIR && Code == 0) {
-	//					const FString Category = CATEGORY_HAIR;		// 毛发类型
-	//					FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
-	//					Param.Color = FLinearColor::Black;
-	//					// 将当前头发的颜色改为黑色
-	//					Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
-	//				}
-	//				OnStepEnd(FTestRet{ Code, Message });
-	//				});
-	//		}
-	//		});
-	//}
+	//Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+	//	FPlatformProcess::Sleep(0.0);
+	//	OnStepEnd(FTestRet{ 0, TEXT("") });
+	//});
 
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("set anim to face %d, %s, %d"), Code, *Message, Index);
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->GetFace()->SetAnim(Assets[CATEGORY_ANIMATION_FACE], Callback);
+		});
+
+
+	
 	Tasks.Start([=](const FTestRet& Last) {
 		UE_LOG(LogTemp, Warning, TEXT("==>> End %d %s"), Last.Code, *Last.Message);
 	});
 }
+

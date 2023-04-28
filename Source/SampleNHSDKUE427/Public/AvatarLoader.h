@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NHCallbackWrapper.h"
 #include "AvatarLoader.generated.h"
 
 UCLASS()
@@ -25,4 +26,6 @@ public:
 
 private:
 	void LoadAvatar(const TMap<FString, FString>& Assets, const FVector& Position, const FRotator& Rotation);
+
+	TArray<UNHCallbackWrapper*> Callbacks;
 };
