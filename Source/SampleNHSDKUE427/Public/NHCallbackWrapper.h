@@ -5,6 +5,7 @@
 
 UCLASS()
 class UNHCallbackWrapper : public UObject {
+public:
 	GENERATED_UCLASS_BODY()
 public:
 
