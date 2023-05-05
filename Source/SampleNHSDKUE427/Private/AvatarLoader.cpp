@@ -3,9 +3,7 @@
 
 #include "AvatarLoader.h"
 #include "INextHumanSDK.h"
-#include "NextAvatar.h"
 #include "NHCategory.h"
-#include "RunChain.h"
 #include "NHCallbackWrapper.h"
 
 using namespace nexthuman::sdk;
@@ -30,27 +28,37 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 	static const FString TempAccessToken = "J+W+sX+b1zYiKgQcVLh5rlRCGbu8rKWrA/UYqfe6qSFIblSL0z0JQ8mF4Y6lYgkYuap95BSjcPhOOuLLr9cOw6TY/65sB7DfBBYCnoB8noxDXnj7s918/0nw+yvcY8WXl2HcbswMBPDiBGT/Gc6eQg==";
+	const FString SDK_Coverall_F_FC001 = TEXT("SDK_Coverall_F_FC001");
+	const FString SDK_Coverall_F_FC002 = TEXT("SDK_Coverall_F_FC002");
+	const FString SDK_Coverall_F_FC003 = TEXT("SDK_Coverall_F_FC003");
+	const FString SDK_Coverall_M_FC001 = TEXT("SDK_Coverall_M_FC001");
+	const FString SDK_Coverall_M_FC002 = TEXT("SDK_Coverall_M_FC002");
 	// female assets
 	static const TMap<FString, FString> FA{
 		{CATEGORY_AVATAR, TEXT("avatar_64241b207f42de7d0775140d")},
 		{CATEGORY_BODY, TEXT("body_642413f6178b9538264e6a8e")},
 
+		{SDK_Coverall_F_FC001, TEXT("coverall_64312f6f10809e0df45537a7")}, //
+		{SDK_Coverall_F_FC002, TEXT("coverall_644b7b02b4473e4ba1d59563")},
+		{SDK_Coverall_F_FC003, TEXT("coverall_64350e7f05a0d40a4d6f5d28")}, // json有问题
 		{CATEGORY_COVERALL, TEXT("coverall_64312f6f10809e0df45537a7")},
-		{CATEGORY_CLOTH, TEXT("cloth_6437c90d9181074839341076")},
-		{CATEGORY_SHOES, TEXT("shoes_6437d1b39181074839341077")},
-		{CATEGORY_TROUSER, TEXT("trouser_6437d2829181074839341078")},
-		{CATEGORY_EARRINGS, TEXT("earring_645350fb5abd84599e3b3d71")},
-		{CATEGORY_HAT, TEXT("hat_645350e95abd84599e3b3d70")},
 
-		{CATEGORY_HAIR, TEXT("hair_643cb3f3d46ccd6078f72385")},
-		{CATEGORY_EYEBROW, TEXT("eyebrow_643cb7b016938c6c359608f2")},
-		{CATEGORY_EYELASH, TEXT("eyelash_643cdab716938c6c359608f3")},
+		{CATEGORY_CLOTH, TEXT("cloth_6437c90d9181074839341076")}, //
+		{CATEGORY_SHOES, TEXT("shoes_6437d1b39181074839341077")}, //
+		{CATEGORY_TROUSER, TEXT("trouser_6437d2829181074839341078")}, //
+		{CATEGORY_EARRINGS, TEXT("earring_645350fb5abd84599e3b3d71")}, //
+		{CATEGORY_HAT, TEXT("hat_645350e95abd84599e3b3d70")}, //
+		{CATEGORY_SOCKS, TEXT("socks_6453512d5abd84599e3b3d73")}, //
 
-		{CATEGORY_ANIMATION_BODY, TEXT("skeani_64421d63c6745f0f67a92205")},
-		{CATEGORY_ANIMATION_FACE, TEXT("faceani_6442437ec6745f0f67a92207")},
+		{CATEGORY_HAIR, TEXT("hair_643cb3f3d46ccd6078f72385")}, // 材质有问题
+		{CATEGORY_EYEBROW, TEXT("eyebrow_643cb7b016938c6c359608f2")}, // 需要更新
+		{CATEGORY_EYELASH, TEXT("eyelash_643cdab716938c6c359608f3")}, //
 
-		{CATEGORY_MAKEUP_BLUSHER, TEXT("blusher_645351575abd84599e3b3d74")},
-		{CATEGORY_MAKEUP_EYE, TEXT("eyemakeup_645351605abd84599e3b3d75")},
+		{CATEGORY_ANIMATION_BODY, TEXT("skeani_64421d63c6745f0f67a92205")}, //
+		{CATEGORY_ANIMATION_FACE, TEXT("faceani_6442437ec6745f0f67a92207")}, //
+
+		{CATEGORY_MAKEUP_BLUSHER, TEXT("blusher_645351575abd84599e3b3d74")}, // Mask.uasset不能加载，原始资产名称不对
+		{CATEGORY_MAKEUP_EYE, TEXT("eyemakeup_645351605abd84599e3b3d75")}, // Mask.uasset不能加载，原始资产名称不对
 		{CATEGORY_MAKEUP_LIP, TEXT("lipstick_6453516b5abd84599e3b3d76")},
 		{CATEGORY_MAKEUP_MAGIC_FACE, TEXT("magicface_645351745abd84599e3b3d77")},
 		{CATEGORY_MAKEUP_PUPIL, TEXT("pupil_6453517d5abd84599e3b3d78")},
@@ -62,12 +70,16 @@ void AAvatarLoader::BeginPlay()
 		{CATEGORY_AVATAR, TEXT("avatar_64241b057f42de7d0775140c")},
 		{CATEGORY_BODY, TEXT("body_642412df178b9538264e6a8d")},
 
+		{SDK_Coverall_M_FC001, TEXT("coverall_6434feb205a0d40a4d6f5d27")},
+		{SDK_Coverall_M_FC002, TEXT("coverall_644b7b70b4473e4ba1d59564")},
 		{CATEGORY_COVERALL, TEXT("coverall_6434feb205a0d40a4d6f5d27")},
+
 		{CATEGORY_CLOTH, TEXT("cloth_64427ab843093f642a13d877")},
 		{CATEGORY_SHOES, TEXT("shoes_64427afb43093f642a13d879")},
 		{CATEGORY_TROUSER, TEXT("trouser_64427adc43093f642a13d878")},
 		{CATEGORY_EARRINGS, TEXT("earring_645352345abd84599e3b3d7b")},
 		{CATEGORY_HAIR, TEXT("hat_645350e95abd84599e3b3d70")},
+		{CATEGORY_SOCKS, TEXT("socks_6453525b5abd84599e3b3d7d")},
 
 		{CATEGORY_HAIR, TEXT("hair_644276a3f472c547bb215c2b")},
 		{CATEGORY_EYEBROW, TEXT("eyebrow_644b7ea7b4473e4ba1d59568")},
@@ -91,13 +103,13 @@ void AAvatarLoader::BeginPlay()
 		{
 			if (Code == INextHumanSDKModule::CODE_SUCCESS) {
 				LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
-				LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
+				//LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
 			}
 		});
 	}
 	else {
 		LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
-		LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
+		//LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
 	}
 }
 
@@ -119,15 +131,6 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 		return;
 	}
 
-	using nexthuman::sdk::demo::FRet;
-	using nexthuman::sdk::demo::TTaskChain;
-	struct FTestRet : public FRet {
-		int64 ClothId;
-		int64 ShoesId;
-		int64 TrousersId;
-		FTestRet(int32 InCode = 0, FString InMessage = TEXT(""), int64 InClothId = INT64_MIN, int64 InShoesId = INT64_MIN, int64 InTrousersId = INT64_MIN) :FRet(InCode, InMessage), ClothId(InClothId), ShoesId(InShoesId), TrousersId(InTrousersId) {}
-	};
-	typedef TTaskChain<FTestRet> FTaskChain;
 	INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
 	FTaskChain& Tasks = FTaskChain::Create(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
@@ -135,13 +138,19 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 	});
 
 	// Cache resource
-	for (auto& Pair : Assets) {
-		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &SDK](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-			SDK.PrepareResource(Pair.Value, [=](int32 Code, const FString& Message) {
-				OnStepEnd(FTestRet{ Code, Message });
-			});
+	//for (auto& Pair : Assets) {
+	//	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &SDK](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+	//		SDK.PrepareResource(Pair.Value, [=](int32 Code, const FString& Message) {
+	//			OnStepEnd(FTestRet{ Code, Message });
+	//		});
+	//	});
+	//}
+
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &SDK](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		SDK.PrepareResource(Assets[CATEGORY_BODY], [=](int32 Code, const FString& Message) {
+			OnStepEnd(FTestRet{ Code, Message });
 		});
-	}
+	});
 
 	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
 		Avatar->SetAvatarId(Assets[CATEGORY_AVATAR], [=](int32 Code, const FString& Message, int64 Id) {
@@ -158,94 +167,164 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 		});
 	});
 
-	int64 ClothIndex = -1;
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &ClothIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=, &ClothIndex](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("Add cloth to body %d, %s, %d"), Code, *Message, Index);
-			ClothIndex = Index;
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->AddBundle(Assets[CATEGORY_CLOTH], Callback);
-	});
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_COVERALL, Assets[CATEGORY_COVERALL]);
+	//Delay(Tasks, 3);
+	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_COVERALL);
+	//Delay(Tasks, 3);
 
-	int64 TrousersIndex = -1;
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &TrousersIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=, &TrousersIndex](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("Add trousers to body %d, %s, %d"), Code, *Message, Index);
-			TrousersIndex = Index;
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->AddBundle(Assets[CATEGORY_TROUSER], Callback);
-	});
 
-	int64 ShoesIndex = -1;
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &ShoesIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=, &ShoesIndex](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("Add shoes to body %d, %s, %d"), Code, *Message, Index);
-			ShoesIndex = Index;
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->AddBundle(Assets[CATEGORY_SHOES], Callback);
-	});
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_CLOTH, Assets[CATEGORY_CLOTH]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_TROUSER, Assets[CATEGORY_TROUSER]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_SHOES, Assets[CATEGORY_SHOES]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_SOCKS, Assets[CATEGORY_SOCKS]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAIR, Assets[CATEGORY_HAIR], [=](int64) {
+	//	const FString Category = CATEGORY_HAIR;		// 毛发类型
+	//	FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
+	//	Param.Color = FLinearColor::Blue; // 将当前头发的颜色改为黑色
+	//	Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
+	//});
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAT, Assets[CATEGORY_HAT]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS, Assets[CATEGORY_EARRINGS]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_BLUSHER, Assets[CATEGORY_MAKEUP_BLUSHER]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_EYE, Assets[CATEGORY_MAKEUP_EYE]);
+	AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_LIP, Assets[CATEGORY_MAKEUP_LIP]);
 
-	int64 HairIndex = -1;
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &HairIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=, &HairIndex](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("Add hair to face %d, %s, %d"), Code, *Message, Index);
-			HairIndex = Index;
-			OnStepEnd(FTestRet{ Code, Message });
 
-			const FString Category = CATEGORY_HAIR;		// 毛发类型
-			FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
-			Param.Color = FLinearColor::Black;
-			// 将当前头发的颜色改为黑色
-			Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->GetFace()->AddBundle(Assets[CATEGORY_HAIR], Callback);
-	});
+	Delay(Tasks, 3);
 
-	int64 EyelashIndex = -1;
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=, &EyelashIndex](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=, &EyelashIndex](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("Add eyelash to face %d, %s, %d"), Code, *Message, Index);
-			EyelashIndex = Index;
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->GetFace()->AddBundle(Assets[CATEGORY_EYELASH], Callback);
-	});
+	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_CLOTH);
+	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_TROUSER);
+	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_SHOES);
+	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_SOCKS);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAIR);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAT);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_BLUSHER);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_EYE);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_LIP);
 
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->SetAnim(Assets[CATEGORY_ANIMATION_BODY], Callback);
-		});
 
-	//Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-	//	FPlatformProcess::Sleep(0.0);
-	//	OnStepEnd(FTestRet{ 0, TEXT("") });
+	Delay(Tasks, 3);
+
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_CLOTH, Assets[CATEGORY_CLOTH]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_TROUSER, Assets[CATEGORY_TROUSER]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_SHOES, Assets[CATEGORY_SHOES]);
+	//AddBodyBundle(Tasks, Avatar, CATEGORY_SOCKS, Assets[CATEGORY_SOCKS]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAIR, Assets[CATEGORY_HAIR]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAT, Assets[CATEGORY_HAT]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS, Assets[CATEGORY_EARRINGS]);
+
+	//int64 EyelashIndex = -1;
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_EYELASH, Assets[CATEGORY_EYELASH], [=, &EyelashIndex](int64 Index) {
+	//	EyelashIndex = Index;
 	//});
 
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-			UE_LOG(LogTemp, Warning, TEXT("set anim to face %d, %s, %d"), Code, *Message, Index);
-			OnStepEnd(FTestRet{ Code, Message });
-		};
-		NH_CREATE_CALLBACK(Cb);
-		Avatar->GetBody()->GetFace()->SetAnim(Assets[CATEGORY_ANIMATION_FACE], Callback);
-		});
+	//int64 EarringIndex = -1;
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS, Assets[CATEGORY_EARRINGS], [=, &EarringIndex](int64 Index) {
+	//	EarringIndex = Index;
+	//});
 
+	//int64 HatIndex = -1;
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAT, Assets[CATEGORY_HAT], [=, &HatIndex](int64 Index) {
+	//	HatIndex = Index;
+	//});
 
-	
+	// Mask.uasset 名称对不上
+	//int64 MakeupBlusherIndex = -1;
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_BLUSHER, Assets[CATEGORY_MAKEUP_BLUSHER], [=, &MakeupBlusherIndex](int64 Index) {
+	//	MakeupBlusherIndex = Index;
+	//});
+
+	// 不能用
+	//int64 EyeBrowIndex = -1;
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_EYEBROW, Assets[CATEGORY_EYEBROW], [=, &EyeBrowIndex](int64 Index) {
+	//	EyeBrowIndex = Index;
+	//});
+
+	//Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+	//	auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+	//		UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
+	//		OnStepEnd(FTestRet{ Code, Message });
+	//	};
+	//	NH_CREATE_CALLBACK(Cb);
+	//	Avatar->GetBody()->SetAnim(Assets[CATEGORY_ANIMATION_BODY], Callback);
+	//});
+
+	//Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+	//	auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+	//		UE_LOG(LogTemp, Warning, TEXT("set anim to face %d, %s, %d"), Code, *Message, Index);
+	//		OnStepEnd(FTestRet{ Code, Message });
+	//	};
+	//	NH_CREATE_CALLBACK(Cb);
+	//	Avatar->GetBody()->GetFace()->SetAnim(Assets[CATEGORY_ANIMATION_FACE], Callback);
+	//});
+
 	Tasks.Start([=](const FTestRet& Last) {
 		UE_LOG(LogTemp, Warning, TEXT("==>> End %d %s"), Last.Code, *Last.Message);
 	});
 }
 
+void AAvatarLoader::AddFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete) {
+	Chain.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add %s to face %d, %s, %d"), *Key, Code, *Message, Index);
+			if (Code == 0) {
+				IndexMap.Add(Key, Index);
+			}
+			OnComplete(Index);
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->GetFace()->AddBundle(Id, Callback);
+	});
+}
+
+void AAvatarLoader::AddBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete) {
+	Chain.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("Add %s to body %d, %s, %d"), *Key, Code, *Message, Index);
+			if (Code == 0) {
+				IndexMap.Add(Key, Index);
+			}
+			OnComplete(Index);
+			OnStepEnd(FTestRet{ Code, Message });
+		};
+		NH_CREATE_CALLBACK(Cb);
+		Avatar->GetBody()->AddBundle(Id, Callback);
+	});
+}
+
+void AAvatarLoader::RemoveBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key) {
+	Chain.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		if (IndexMap.Contains(Key)) {
+			Avatar->GetBody()->RemoveBundle(IndexMap[Key]);
+			IndexMap.Remove(Key);
+			OnStepEnd(FTestRet{ 0, TEXT("") });
+		}
+		else {
+			OnStepEnd(FTestRet{ -1, FString::Printf(TEXT("Key not found %s"), *Key) });
+		}
+	});
+}
+
+void AAvatarLoader::RemoveFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key) {
+	Chain.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		if (IndexMap.Contains(Key)) {
+			Avatar->GetBody()->GetFace()->RemoveBundle(IndexMap[Key]);
+			IndexMap.Remove(Key);
+			OnStepEnd(FTestRet{ 0, TEXT("") });
+		}
+		else {
+			OnStepEnd(FTestRet{ -1, FString::Printf(TEXT("Key not found %s"), *Key) });
+		}
+	});
+}
+
+void AAvatarLoader::Delay(FTaskChain& Chain, float Seconds) {
+	Chain.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [=]() {
+			OnStepEnd(FTestRet{ 0, TEXT("") });
+		}, Seconds, false);
+	});
+}
