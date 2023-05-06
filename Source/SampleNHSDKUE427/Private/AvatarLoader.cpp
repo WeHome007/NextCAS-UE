@@ -33,6 +33,9 @@ void AAvatarLoader::BeginPlay()
 	const FString SDK_Coverall_F_FC003 = TEXT("SDK_Coverall_F_FC003");
 	const FString SDK_Coverall_M_FC001 = TEXT("SDK_Coverall_M_FC001");
 	const FString SDK_Coverall_M_FC002 = TEXT("SDK_Coverall_M_FC002");
+	const FString SDK_skintex_F_01 = TEXT("SDK_skintex_F_01");
+	const FString SDK_skintex_F_02 = TEXT("SDK_skintex_F_02");
+
 	// female assets
 	static const TMap<FString, FString> FA{
 		{CATEGORY_AVATAR, TEXT("avatar_64241b207f42de7d0775140d")},
@@ -41,7 +44,7 @@ void AAvatarLoader::BeginPlay()
 		{SDK_Coverall_F_FC001, TEXT("coverall_64312f6f10809e0df45537a7")}, //
 		{SDK_Coverall_F_FC002, TEXT("coverall_644b7b02b4473e4ba1d59563")},
 		{SDK_Coverall_F_FC003, TEXT("coverall_64350e7f05a0d40a4d6f5d28")}, // json有问题
-		{CATEGORY_COVERALL, TEXT("coverall_64312f6f10809e0df45537a7")},
+		{CATEGORY_COVERALL, TEXT("coverall_644b7b02b4473e4ba1d59563")},
 
 		{CATEGORY_CLOTH, TEXT("cloth_6437c90d9181074839341076")}, //
 		{CATEGORY_SHOES, TEXT("shoes_6437d1b39181074839341077")}, //
@@ -59,10 +62,13 @@ void AAvatarLoader::BeginPlay()
 
 		{CATEGORY_MAKEUP_BLUSHER, TEXT("blusher_645351575abd84599e3b3d74")}, // Mask.uasset不能加载，原始资产名称不对
 		{CATEGORY_MAKEUP_EYE, TEXT("eyemakeup_645351605abd84599e3b3d75")}, // Mask.uasset不能加载，原始资产名称不对
-		{CATEGORY_MAKEUP_LIP, TEXT("lipstick_6453516b5abd84599e3b3d76")}, // 变绿了
+		{CATEGORY_MAKEUP_LIP, TEXT("lipstick_6453516b5abd84599e3b3d76")},
 		{CATEGORY_MAKEUP_MAGIC_FACE, TEXT("magicface_645351745abd84599e3b3d77")},
-		{CATEGORY_MAKEUP_PUPIL, TEXT("pupil_6453517d5abd84599e3b3d78")},
-		{CATEGORY_MAKEUP_SKIN_TEXTURE, TEXT("skintex_6453518b5abd84599e3b3d79")},
+		{CATEGORY_MAKEUP_PUPIL, TEXT("pupil_6453517d5abd84599e3b3d78")}, // Mask.uasset不能加载，原始资产名称不对
+
+		{SDK_skintex_F_01, TEXT("skintex_6453518b5abd84599e3b3d79")},
+		{SDK_skintex_F_02, TEXT("skintex_6455ebee5abd84599e3b3d88")},
+		{CATEGORY_MAKEUP_SKIN_TEXTURE, TEXT("skintex_6453518b5abd84599e3b3d79")}, // 
 	};
 
 	// male assets
@@ -78,7 +84,7 @@ void AAvatarLoader::BeginPlay()
 		{CATEGORY_SHOES, TEXT("shoes_64427afb43093f642a13d879")},
 		{CATEGORY_TROUSER, TEXT("trouser_64427adc43093f642a13d878")},
 		{CATEGORY_EARRINGS, TEXT("earring_645352345abd84599e3b3d7b")},
-		{CATEGORY_HAIR, TEXT("hat_645350e95abd84599e3b3d70")},
+		{CATEGORY_HAT, TEXT("hat_645350e95abd84599e3b3d70")},
 		{CATEGORY_SOCKS, TEXT("socks_6453525b5abd84599e3b3d7d")},
 
 		{CATEGORY_HAIR, TEXT("hair_644276a3f472c547bb215c2b")},
@@ -167,41 +173,46 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 		});
 	});
 
-	//AddBodyBundle(Tasks, Avatar, CATEGORY_COVERALL, Assets[CATEGORY_COVERALL]);
-	//Delay(Tasks, 3);
-	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_COVERALL);
-	//Delay(Tasks, 3);
+	AddBodyBundle(Tasks, Avatar, CATEGORY_COVERALL, Assets[CATEGORY_COVERALL]);
+	Delay(Tasks, 3);
+	RemoveBodyBundle(Tasks, Avatar, CATEGORY_COVERALL);
+	Delay(Tasks, 3);
 
 
-	//AddBodyBundle(Tasks, Avatar, CATEGORY_CLOTH, Assets[CATEGORY_CLOTH]);
-	//AddBodyBundle(Tasks, Avatar, CATEGORY_TROUSER, Assets[CATEGORY_TROUSER]);
-	//AddBodyBundle(Tasks, Avatar, CATEGORY_SHOES, Assets[CATEGORY_SHOES]);
-	//AddBodyBundle(Tasks, Avatar, CATEGORY_SOCKS, Assets[CATEGORY_SOCKS]);
-	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAIR, Assets[CATEGORY_HAIR], [=](int64) {
-	//	const FString Category = CATEGORY_HAIR;		// 毛发类型
-	//	FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
-	//	Param.Color = FLinearColor::Blue; // 将当前头发的颜色改为黑色
-	//	Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
-	//});
-	//AddFaceBundle(Tasks, Avatar, CATEGORY_HAT, Assets[CATEGORY_HAT]);
-	//AddFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS, Assets[CATEGORY_EARRINGS]);
+	AddBodyBundle(Tasks, Avatar, CATEGORY_CLOTH, Assets[CATEGORY_CLOTH]);
+	AddBodyBundle(Tasks, Avatar, CATEGORY_TROUSER, Assets[CATEGORY_TROUSER]);
+	AddBodyBundle(Tasks, Avatar, CATEGORY_SHOES, Assets[CATEGORY_SHOES]);
+	AddBodyBundle(Tasks, Avatar, CATEGORY_SOCKS, Assets[CATEGORY_SOCKS]);
+	AddFaceBundle(Tasks, Avatar, CATEGORY_HAIR, Assets[CATEGORY_HAIR], [=](int64) {
+		const FString Category = CATEGORY_HAIR;		// 毛发类型
+		FGroomMaterialParam Param;					// 对应资产的材质球支持的修改参数
+		Param.Color = FLinearColor::Yellow; // 将当前头发的颜色改为黑色
+		Avatar->GetBody()->GetFace()->ChangeGroomMaterialParam(Category, Param);
+	});
+	AddFaceBundle(Tasks, Avatar, CATEGORY_HAT, Assets[CATEGORY_HAT]);
+	AddFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS, Assets[CATEGORY_EARRINGS]);
 	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_BLUSHER, Assets[CATEGORY_MAKEUP_BLUSHER]);
 	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_EYE, Assets[CATEGORY_MAKEUP_EYE]);
 	AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_LIP, Assets[CATEGORY_MAKEUP_LIP]);
+	AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_MAGIC_FACE, Assets[CATEGORY_MAKEUP_MAGIC_FACE]);
+	//AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_PUPIL, Assets[CATEGORY_MAKEUP_PUPIL]);
+	AddFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_SKIN_TEXTURE, Assets[CATEGORY_MAKEUP_SKIN_TEXTURE]);
 
+	Delay(Tasks, 5);
 
-	Delay(Tasks, 3);
-
-	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_CLOTH);
-	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_TROUSER);
-	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_SHOES);
-	//RemoveBodyBundle(Tasks, Avatar, CATEGORY_SOCKS);
-	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAIR);
-	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAT);
-	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS);
+	RemoveBodyBundle(Tasks, Avatar, CATEGORY_CLOTH);
+	RemoveBodyBundle(Tasks, Avatar, CATEGORY_TROUSER);
+	RemoveBodyBundle(Tasks, Avatar, CATEGORY_SHOES);
+	RemoveBodyBundle(Tasks, Avatar, CATEGORY_SOCKS);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAIR);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_HAT);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_EARRINGS);
 	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_BLUSHER);
 	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_EYE);
 	RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_LIP);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_MAGIC_FACE);
+	//RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_PUPIL);
+	RemoveFaceBundle(Tasks, Avatar, CATEGORY_MAKEUP_SKIN_TEXTURE);
 
 
 	Delay(Tasks, 3);
