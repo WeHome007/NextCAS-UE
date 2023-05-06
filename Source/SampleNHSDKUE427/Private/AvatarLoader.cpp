@@ -59,7 +59,7 @@ void AAvatarLoader::BeginPlay()
 
 		{CATEGORY_MAKEUP_BLUSHER, TEXT("blusher_645351575abd84599e3b3d74")}, // Mask.uasset不能加载，原始资产名称不对
 		{CATEGORY_MAKEUP_EYE, TEXT("eyemakeup_645351605abd84599e3b3d75")}, // Mask.uasset不能加载，原始资产名称不对
-		{CATEGORY_MAKEUP_LIP, TEXT("lipstick_6453516b5abd84599e3b3d76")},
+		{CATEGORY_MAKEUP_LIP, TEXT("lipstick_6453516b5abd84599e3b3d76")}, // 变绿了
 		{CATEGORY_MAKEUP_MAGIC_FACE, TEXT("magicface_645351745abd84599e3b3d77")},
 		{CATEGORY_MAKEUP_PUPIL, TEXT("pupil_6453517d5abd84599e3b3d78")},
 		{CATEGORY_MAKEUP_SKIN_TEXTURE, TEXT("skintex_6453518b5abd84599e3b3d79")},

@@ -36,8 +36,8 @@ private:
 	typedef nexthuman::sdk::demo::TTaskChain<FTestRet> FTaskChain;
 
 	void LoadAvatar(const TMap<FString, FString>& Assets, const FVector& Position, const FRotator& Rotation);
-	void AddFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [=](int64) {});
-	void AddBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [=](int64) {});
+	void AddFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [](int64) {});
+	void AddBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [](int64) {});
 	void RemoveBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key);
 	void RemoveFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key);
 	void Delay(FTaskChain& Chain, float Seconds);
