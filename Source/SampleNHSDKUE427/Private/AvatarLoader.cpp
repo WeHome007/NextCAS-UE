@@ -123,87 +123,27 @@ void AAvatarLoader::BeginPlay()
 		{CATEGORY_BODY, TEXT("body_642412df178b9538264e6a8d")},
 	};
 
-	static const TArray<FString> CategoryList{
-		//CATEGORY_COVERALL,
-		CATEGORY_CLOTH, CATEGORY_TROUSER, CATEGORY_SOCKS, CATEGORY_SHOES, CATEGORY_HAIR, CATEGORY_HAT, CATEGORY_EARRINGS, CATEGORY_HAT, CATEGORY_NECKLACE,
-		CATEGORY_GLASS, CATEGORY_MUSTACHE, CATEGORY_BEARD,
-		CATEGORY_MAKEUP_BLUSHER, CATEGORY_MAKEUP_EYE, CATEGORY_MAKEUP_LIP, CATEGORY_MAKEUP_MAGIC_FACE, CATEGORY_MAKEUP_PUPIL, CATEGORY_MAKEUP_SKIN_TEXTURE,
-		CATEGORY_ANIMATION_BODY,
-	};
 
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
 		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken,
 			//TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-					int32 FemaleMax = 0;
-					int32 MaleMax = 0;
-					for (auto& Category : CategoryList) {
-						int32 FemaleCount = 0;
-						int32 MaleCount = 0;
-						for (auto& Asset : ASSETS) {
-							if (Category == Asset.Category && Asset.Gender == EGender::FEMALE) {
-								FemaleCount++;
-							}
-						}
-						UE_LOG(LogTemp, Display, TEXT("FEMALE[%s]=%d"), *Category, FemaleCount);
-						if (FemaleCount > FemaleMax) {
-							FemaleMax = FemaleCount;
-						}
-
-						for (auto& Asset : ASSETS) {
-							if (Category == Asset.Category && Asset.Gender == EGender::MALE) {
-								MaleCount++;
-							}
-						}
-						UE_LOG(LogTemp, Display, TEXT("MALE[%s]=%d"), *Category, MaleCount);
-						if (MaleCount > MaleMax) {
-							MaleMax = MaleCount;
-						}
-					}
-
-					TMap<EGender, int32> GenderMaxMap{
-						{ EGender::FEMALE, FemaleMax },
-						{ EGender::MALE, MaleMax },
-					};
-
-					for (auto& KV : GenderMaxMap) {
-						for (int i = 0; i < KV.Value; i++) {
-							TArray<FAsset> AssetGroup;
-							for (auto& Category : CategoryList) {
-								int32 Index = 0;
-								for (auto& Asset : ASSETS) {
-									if (Category == Asset.Category && Asset.Gender == KV.Key) {
-										if (Index == i) {
-											AssetGroup.Add(Asset);
-											break;
-										}
-										Index++;
-									}
-								}
-							}
-							// Load
-							if (KV.Key == EGender::FEMALE
-								//&& i == 4
-								) {
-								Load(FA[CATEGORY_AVATAR], AssetGroup, FVector(50 * (i + 1), -50, 0), FRotator(0, 0, 0));
-							}
-							
-							if (KV.Key == EGender::MALE
-								//&& i == 2
-								) {
-								Load(MA[CATEGORY_AVATAR], AssetGroup, FVector(-50 * (i + 1), -50, 0), FRotator(0, 0, 0));
-							}
-						}
-					}
-
 					//LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
 					//LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
+
+					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0));
+					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0));
+					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0));
+
+					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
+					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0));
+					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0));
 
 					TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
 						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
 					});
-					int32 Index = FemaleMax;
+					int32 Index = 3;
 					for (auto& Coverall : FemaleCoverall) {
 						Load(FA[CATEGORY_AVATAR], { Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
 					}
@@ -211,7 +151,7 @@ void AAvatarLoader::BeginPlay()
 					TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
 						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
 					});
-					Index = MaleMax;
+					Index = 3;
 					for (auto& Coverall : MaleCoverall) {
 						Load(MA[CATEGORY_AVATAR], { Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
 					}
@@ -474,4 +414,60 @@ void AAvatarLoader::Load(FString AvatarId, TArray<FAsset> Assets, const FVector&
 	Tasks.Start([=](const FTestRet& Last) {
 
 	});
+}
+
+TArray<AAvatarLoader::FAsset> AAvatarLoader::FindAssets(EGender Gender, int32 InIndex) {
+	static const TArray<FString> CategoryList{
+		//CATEGORY_COVERALL,
+		CATEGORY_CLOTH, CATEGORY_TROUSER, CATEGORY_SOCKS, CATEGORY_SHOES, CATEGORY_HAIR, CATEGORY_HAT, CATEGORY_EARRINGS, CATEGORY_HAT, CATEGORY_NECKLACE,
+		CATEGORY_GLASS, CATEGORY_MUSTACHE, CATEGORY_BEARD,
+		CATEGORY_MAKEUP_BLUSHER, CATEGORY_MAKEUP_EYE, CATEGORY_MAKEUP_LIP, CATEGORY_MAKEUP_MAGIC_FACE, CATEGORY_MAKEUP_PUPIL, CATEGORY_MAKEUP_SKIN_TEXTURE,
+		CATEGORY_ANIMATION_BODY,
+	};
+
+	int32 FemaleMax = 0;
+	int32 MaleMax = 0;
+	for (auto& Category : CategoryList) {
+		int32 FemaleCount = 0;
+		int32 MaleCount = 0;
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == EGender::FEMALE) {
+				FemaleCount++;
+			}
+		}
+		//UE_LOG(LogTemp, Display, TEXT("FEMALE[%s]=%d"), *Category, FemaleCount);
+		if (FemaleCount > FemaleMax) {
+			FemaleMax = FemaleCount;
+		}
+
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == EGender::MALE) {
+				MaleCount++;
+			}
+		}
+		//UE_LOG(LogTemp, Display, TEXT("MALE[%s]=%d"), *Category, MaleCount);
+		if (MaleCount > MaleMax) {
+			MaleMax = MaleCount;
+		}
+	}
+
+	TMap<EGender, int32> GenderMaxMap{
+		{ EGender::FEMALE, FemaleMax },
+		{ EGender::MALE, MaleMax },
+	};
+
+	TArray<FAsset> AssetGroup;
+	for (auto& Category : CategoryList) {
+		int32 Index = 0;
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == Gender) {
+				if (Index == InIndex) {
+					AssetGroup.Add(Asset);
+					break;
+				}
+				Index++;
+			}
+		}
+	}
+	return AssetGroup;
 }
