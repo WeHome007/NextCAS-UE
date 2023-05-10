@@ -55,6 +55,7 @@ private:
 	void Delay(FTaskChain& Chain, float Seconds);
 
 	void Load(FString AvatarId, TArray<FAsset> Assets, const FVector& Position, const FRotator& Rotation);
+	void Load(FTaskChain& Chain, FString AvatarId, TArray<FAsset> Assets, const FVector& Position, const FRotator& Rotation);
 	TArray<FAsset> FindAssets(EGender Gender, int32 Index);
 
 	TArray<UNHCallbackWrapper*> Callbacks;

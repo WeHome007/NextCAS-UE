@@ -132,20 +132,22 @@ void AAvatarLoader::BeginPlay()
 					//LoadAvatar(FA, FVector(50, 0, 0), FRotator(0, 0, 0));
 					//LoadAvatar(MA, FVector(-50, 0, 0), FRotator(0, 0, 0));
 
-					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0));
-					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0));
-					Load(FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0));
+					FTaskChain& Tasks = FTaskChain::Create();
 
-					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
-					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0));
-					Load(MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0));
+					Load(Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0));
+					Load(Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0));
+					Load(Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0));
+
+					Load(Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
+					Load(Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0));
+					Load(Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0));
 
 					TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
 						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
 					});
 					int32 Index = 3;
 					for (auto& Coverall : FemaleCoverall) {
-						Load(FA[CATEGORY_AVATAR], { Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
+						Load(Tasks, FA[CATEGORY_AVATAR], { Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
 					}
 
 					TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
@@ -153,8 +155,13 @@ void AAvatarLoader::BeginPlay()
 					});
 					Index = 3;
 					for (auto& Coverall : MaleCoverall) {
-						Load(MA[CATEGORY_AVATAR], { Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
+						Load(Tasks, MA[CATEGORY_AVATAR], { Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0));
 					}
+					
+					// FCEnv avatars
+					//Load(Tasks, TEXT("avatar_6674375bedc1c3be2a44b127c3f67fff"), {}, FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
+					//Load(Tasks, TEXT("avatar_3acd2e9456fe6103c9489ba9f7329f0c"), {}, FVector(-50 * 2, -50, 0), FRotator(0, 0, 0));
+					Tasks.Start();
 				}
 			});
 	}
@@ -180,9 +187,7 @@ void AAvatarLoader::LoadAvatar(const TMap<FString, FString>& Assets, const FVect
 
 	INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
-	FTaskChain& Tasks = FTaskChain::Create(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		OnStepEnd(FTestRet{});
-	});
+	FTaskChain& Tasks = FTaskChain::Create();
 
 	// Cache resource
 	//for (auto& Pair : Assets) {
@@ -341,6 +346,68 @@ void AAvatarLoader::Delay(FTaskChain& Chain, float Seconds) {
 }
 
 void AAvatarLoader::Load(FString AvatarId, TArray<FAsset> Assets, const FVector& Position, const FRotator& Rotation) {
+	FTaskChain& Tasks = FTaskChain::Create();
+	Load(Tasks, AvatarId, Assets, Position, Rotation);
+	Tasks.Start();
+}
+
+TArray<AAvatarLoader::FAsset> AAvatarLoader::FindAssets(EGender Gender, int32 InIndex) {
+	static const TArray<FString> CategoryList{
+		//CATEGORY_COVERALL,
+		CATEGORY_CLOTH, CATEGORY_TROUSER, CATEGORY_SOCKS, CATEGORY_SHOES, CATEGORY_HAT, CATEGORY_EARRINGS, CATEGORY_HAT, CATEGORY_NECKLACE, CATEGORY_GLASS,
+		CATEGORY_HAIR,  CATEGORY_MUSTACHE, CATEGORY_BEARD, CATEGORY_EYEBROW,
+		CATEGORY_MAKEUP_BLUSHER, CATEGORY_MAKEUP_EYE, CATEGORY_MAKEUP_LIP, CATEGORY_MAKEUP_MAGIC_FACE, CATEGORY_MAKEUP_PUPIL, CATEGORY_MAKEUP_SKIN_TEXTURE,
+		CATEGORY_ANIMATION_BODY,
+	};
+
+	int32 FemaleMax = 0;
+	int32 MaleMax = 0;
+	for (auto& Category : CategoryList) {
+		int32 FemaleCount = 0;
+		int32 MaleCount = 0;
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == EGender::FEMALE) {
+				FemaleCount++;
+			}
+		}
+		//UE_LOG(LogTemp, Display, TEXT("FEMALE[%s]=%d"), *Category, FemaleCount);
+		if (FemaleCount > FemaleMax) {
+			FemaleMax = FemaleCount;
+		}
+
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == EGender::MALE) {
+				MaleCount++;
+			}
+		}
+		//UE_LOG(LogTemp, Display, TEXT("MALE[%s]=%d"), *Category, MaleCount);
+		if (MaleCount > MaleMax) {
+			MaleMax = MaleCount;
+		}
+	}
+
+	TMap<EGender, int32> GenderMaxMap{
+		{ EGender::FEMALE, FemaleMax },
+		{ EGender::MALE, MaleMax },
+	};
+
+	TArray<FAsset> AssetGroup;
+	for (auto& Category : CategoryList) {
+		int32 Index = 0;
+		for (auto& Asset : ASSETS) {
+			if (Category == Asset.Category && Asset.Gender == Gender) {
+				if (Index == InIndex) {
+					AssetGroup.Add(Asset);
+					break;
+				}
+				Index++;
+			}
+		}
+	}
+	return AssetGroup;
+}
+
+void AAvatarLoader::Load(FTaskChain& Tasks, FString AvatarId, TArray<FAsset> Assets, const FVector& Position, const FRotator& Rotation) {
 	UWorld* World = GetWorld();
 	if (!World) {
 		return;
@@ -358,9 +425,6 @@ void AAvatarLoader::Load(FString AvatarId, TArray<FAsset> Assets, const FVector&
 
 	INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
-	FTaskChain& Tasks = FTaskChain::Create(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
-		OnStepEnd(FTestRet{});
-	});
 	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTaskChain::FOnStepEnd OnStepEnd) {
 		Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, int64 Id) {
 			OnStepEnd(FTestRet{ Code, Message });
@@ -411,63 +475,4 @@ void AAvatarLoader::Load(FString AvatarId, TArray<FAsset> Assets, const FVector&
 			});
 		}
 	}
-	Tasks.Start([=](const FTestRet& Last) {
-
-	});
-}
-
-TArray<AAvatarLoader::FAsset> AAvatarLoader::FindAssets(EGender Gender, int32 InIndex) {
-	static const TArray<FString> CategoryList{
-		//CATEGORY_COVERALL,
-		CATEGORY_CLOTH, CATEGORY_TROUSER, CATEGORY_SOCKS, CATEGORY_SHOES, CATEGORY_HAIR, CATEGORY_HAT, CATEGORY_EARRINGS, CATEGORY_HAT, CATEGORY_NECKLACE,
-		CATEGORY_GLASS, CATEGORY_MUSTACHE, CATEGORY_BEARD,
-		CATEGORY_MAKEUP_BLUSHER, CATEGORY_MAKEUP_EYE, CATEGORY_MAKEUP_LIP, CATEGORY_MAKEUP_MAGIC_FACE, CATEGORY_MAKEUP_PUPIL, CATEGORY_MAKEUP_SKIN_TEXTURE,
-		CATEGORY_ANIMATION_BODY,
-	};
-
-	int32 FemaleMax = 0;
-	int32 MaleMax = 0;
-	for (auto& Category : CategoryList) {
-		int32 FemaleCount = 0;
-		int32 MaleCount = 0;
-		for (auto& Asset : ASSETS) {
-			if (Category == Asset.Category && Asset.Gender == EGender::FEMALE) {
-				FemaleCount++;
-			}
-		}
-		//UE_LOG(LogTemp, Display, TEXT("FEMALE[%s]=%d"), *Category, FemaleCount);
-		if (FemaleCount > FemaleMax) {
-			FemaleMax = FemaleCount;
-		}
-
-		for (auto& Asset : ASSETS) {
-			if (Category == Asset.Category && Asset.Gender == EGender::MALE) {
-				MaleCount++;
-			}
-		}
-		//UE_LOG(LogTemp, Display, TEXT("MALE[%s]=%d"), *Category, MaleCount);
-		if (MaleCount > MaleMax) {
-			MaleMax = MaleCount;
-		}
-	}
-
-	TMap<EGender, int32> GenderMaxMap{
-		{ EGender::FEMALE, FemaleMax },
-		{ EGender::MALE, MaleMax },
-	};
-
-	TArray<FAsset> AssetGroup;
-	for (auto& Category : CategoryList) {
-		int32 Index = 0;
-		for (auto& Asset : ASSETS) {
-			if (Category == Asset.Category && Asset.Gender == Gender) {
-				if (Index == InIndex) {
-					AssetGroup.Add(Asset);
-					break;
-				}
-				Index++;
-			}
-		}
-	}
-	return AssetGroup;
 }
