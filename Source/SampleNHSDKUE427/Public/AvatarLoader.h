@@ -27,7 +27,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
 	struct FTestRet : public nexthuman::sdk::demo::FRet {
 		int64 ClothId;
 		int64 ShoesId;
@@ -47,14 +46,7 @@ private:
 		const FString Category;
 	};
 
-	void LoadAvatar(const TMap<FString, FString>& Assets, const FVector& Position, const FRotator& Rotation);
-	void AddFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [](int64) {});
-	void AddBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete = [](int64) {});
-	void RemoveBodyBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key);
-	void RemoveFaceBundle(FTaskChain& Chain, ANextAvatar* Avatar, const FString& Key);
-	void Delay(FTaskChain& Chain, float Seconds);
-
-	void Load(FString AvatarId, TArray<FAsset> Assets, const FVector& Position, const FRotator& Rotation);
+private:
 	TArray<FAsset> FindAssets(EGender Gender, int32 Index);
 
 	TArray<UNHCallbackWrapper*> Callbacks;

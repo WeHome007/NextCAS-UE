@@ -26,13 +26,18 @@ namespace nexthuman
                     return *this;
                 }
 
-                void Start(FCallback Callback) {
+                void Start(FCallback Callback = [](const RET&) {}) {
                     if (Tasks.Num() == 0) {
                         Callback(RET{ 0, TEXT("empty tasks") });
                         return;
                     }
 
                     RunAt(0, RET{ 0, TEXT("") }, Callback);
+                }
+
+                static TTaskChain& Create() {
+                    TTaskChain* Chain = new TTaskChain();
+                    return *Chain;
                 }
 
                 static TTaskChain& Create(ENamedThreads::Type InThread, FTask FirstTask) {
