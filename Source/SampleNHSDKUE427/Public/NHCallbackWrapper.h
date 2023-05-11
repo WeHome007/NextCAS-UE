@@ -6,12 +6,14 @@
 UCLASS()
 class UNHCallbackWrapper : public UObject {
 public:
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 public:
 
 	UFUNCTION(Category = "NextHuman")
 		void Run(int32 Code, const FString& Message, int64 Index);
 
+	UNHCallbackWrapper();
+	~UNHCallbackWrapper();
 	void SetCallback(TFunction<void(int32, const FString&, int64)> InCallback);
 
 private:
