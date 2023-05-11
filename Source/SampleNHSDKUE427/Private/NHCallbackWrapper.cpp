@@ -1,9 +1,11 @@
 #include "NHCallbackWrapper.h"
 
-UNHCallbackWrapper::UNHCallbackWrapper(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
+UNHCallbackWrapper::UNHCallbackWrapper() {
+	UE_LOG(LogTemp, Warning, TEXT("%s: %p"), ANSI_TO_TCHAR(__FUNCTION__), this);
+}
 
+UNHCallbackWrapper::~UNHCallbackWrapper() {
+	UE_LOG(LogTemp, Warning, TEXT("%s: %p"), ANSI_TO_TCHAR(__FUNCTION__), this);
 }
 
 void UNHCallbackWrapper::Run(int32 Code, const FString& Message, int64 Index) {

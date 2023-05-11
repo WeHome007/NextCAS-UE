@@ -48,8 +48,7 @@ public:
 
 private:
 	TArray<FAsset> FindAssets(EGender Gender, int32 Index);
+	TArray<void*> AvatarWrappers;
 
-	TArray<UNHCallbackWrapper*> Callbacks;
-	TMap<FString, int64> IndexMap;
 	static const TArray<FAsset> ASSETS;
 };
