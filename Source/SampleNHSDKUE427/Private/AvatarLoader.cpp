@@ -193,7 +193,7 @@ namespace nexthuman {
 					}
 				};
 
-				for (int32 i = 0; i < 5; i++) {
+				for (int32 i = 0; i < 10; i++) {
 					Wear();
 					Delay(Tasks, 5);
 					Takeoff();
@@ -389,75 +389,50 @@ void AAvatarLoader::BeginPlay()
 			//TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
+					struct LoadInfo {
+						FString AvatarId;
+						TArray<AAvatarLoader::FAsset> Assets;
+						FVector Position;
+						FRotator Rotation;
+					};
+					TArray<LoadInfo> LoadInfoArray{
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)},
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0)},
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)},
 
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	(new FAvatarWrapper(*this, Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)))->Load();
-					//	Tasks.Start();
-					//}
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0)},
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0)},
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0)},
+					};
+					
+					TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
+						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
+					});
+					int32 Index = 3;
+					for (auto& Coverall : FemaleCoverall) {
+						LoadInfoArray.Add({ FA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+					}
+
+					TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
+						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
+					});
+					Index = 3;
+					for (auto& Coverall : MaleCoverall) {
+						LoadInfoArray.Add({ MA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+					}
+
+					for(auto& LoadInfo : LoadInfoArray)
 					{
 						FTaskChain& Tasks = FTaskChain::Create();
-						FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0));
+						FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation);
 						AvatarWrappers.Add(Wrapper);
 						(Wrapper)->Load();
 						Tasks.Start([=](const FTestRet& Last) {
 							AvatarWrappers.Remove(Wrapper);
-							UE_LOG(LogTemp, Warning, TEXT("INT64_MIN %d %lld"), INT64_MIN, INT64_MIN);
 							UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
 						});
 					}
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	(new FAvatarWrapper(*this, Tasks, FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)))->Load();
-					//	Tasks.Start();
-					//}
 
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
-					//	AvatarWrappers.Add(Wrapper);
-					//	Wrapper->Load();
-					//	Tasks.Start([=](const FTestRet& Last) {
-					//		AvatarWrappers.Remove(Wrapper);
-					//		UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
-					//	});
-					//}
-
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	(new FAvatarWrapper(*this, Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0)))->Load();
-					//	Tasks.Start();
-					//}
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	(new FAvatarWrapper(*this, Tasks, MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0)))->Load();
-					//	Tasks.Start();
-					//}
-					
-
-					//TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-					//	return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
-					//});
-					//int32 Index = 3;
-					//for (auto& Coverall : FemaleCoverall) {
-					//	{
-					//		FTaskChain& Tasks = FTaskChain::Create();
-					//		(new FAvatarWrapper(*this, Tasks, FA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0)))->Load();
-					//		Tasks.Start();
-					//	}
-					//}
-
-					//TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-					//	return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
-					//});
-					//Index = 3;
-					//for (auto& Coverall : MaleCoverall) {
-					//	{
-					//		FTaskChain& Tasks = FTaskChain::Create();
-					//		(new FAvatarWrapper(*this, Tasks, MA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0)))->Load();
-					//		Tasks.Start();
-					//	}
-					//}
 					
 					// FCEnv avatars
 					//Load(Tasks, TEXT("avatar_6674375bedc1c3be2a44b127c3f67fff"), {}, FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
