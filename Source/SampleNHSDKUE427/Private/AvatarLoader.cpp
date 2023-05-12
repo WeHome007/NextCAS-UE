@@ -21,6 +21,7 @@ const TArray<AAvatarLoader::FAsset> AAvatarLoader::ASSETS {
 	{ TEXT("SDK_Glass_F_FC001"),	TEXT("glass_645882412a48eb54410d4c46"), EGender::FEMALE, CATEGORY_GLASS },
 	{ TEXT("SDK_Glass_F_FC002"),	TEXT("glass_645885bd2a48eb54410d4c4a"), EGender::FEMALE, CATEGORY_GLASS },
 	{ TEXT("SDK_Hair_F_FC01"),		TEXT("hair_643cb3f3d46ccd6078f72385"), EGender::FEMALE, CATEGORY_HAIR },
+	{ TEXT("SDK_Hair_F_001"),		TEXT("hair_645dd5131473414344da00b6"), EGender::FEMALE, CATEGORY_HAIR },
 	{ TEXT("SDK_Hat_F_FC001"),		TEXT("hat_645350e95abd84599e3b3d70"), EGender::FEMALE, CATEGORY_HAT },
 	{ TEXT("SDK_Hat_F_FC002"),		TEXT("hat_645885ec2a48eb54410d4c4b"), EGender::FEMALE, CATEGORY_HAT },
 	{ TEXT("SDK_blusher_F_01"),		TEXT("blusher_645351575abd84599e3b3d74"), EGender::FEMALE, CATEGORY_MAKEUP_BLUSHER },
@@ -61,6 +62,7 @@ const TArray<AAvatarLoader::FAsset> AAvatarLoader::ASSETS {
 	{ TEXT("SDK_Glass_M_FC001"),	TEXT("glass_645882502a48eb54410d4c47"),  EGender::MALE, CATEGORY_GLASS },
 	{ TEXT("SDK_Glass_M_FC002"),	TEXT("glass_645887b32a48eb54410d4c59"),  EGender::MALE, CATEGORY_GLASS },
 	{ TEXT("SDK_Hair_M_FC01"),		TEXT("hair_644276a3f472c547bb215c2b"),  EGender::MALE, CATEGORY_HAIR },
+	{ TEXT("SDK_Hair_M_001"),		TEXT("hair_645dd5361473414344da00b7"),  EGender::MALE, CATEGORY_HAIR },
 	{ TEXT("SDK_Hat_M_FC001"),		TEXT("hat_645352215abd84599e3b3d7a"),  EGender::MALE, CATEGORY_HAT },
 	{ TEXT("SDK_Hat_M_FC002"),		TEXT("hat_645887e12a48eb54410d4c5a"),  EGender::MALE, CATEGORY_HAT },
 	{ TEXT("SDK_blusher_M_01"),		TEXT("blusher_645352835abd84599e3b3d7e"),  EGender::MALE, CATEGORY_MAKEUP_BLUSHER },
@@ -123,20 +125,20 @@ namespace nexthuman {
 				});
 
 				TArray<FString> FaceCategoryList{
-					CATEGORY_HAT,
-					CATEGORY_GLASS,
-					CATEGORY_EARRINGS,
+					//CATEGORY_HAT,
+					//CATEGORY_GLASS,
+					//CATEGORY_EARRINGS,
 					CATEGORY_HAIR,
-					CATEGORY_EYEBROW,
-					CATEGORY_EYELASH,
-					CATEGORY_MUSTACHE,
-					CATEGORY_BEARD,
-					CATEGORY_MAKEUP_BLUSHER,
-					CATEGORY_MAKEUP_EYE,
-					CATEGORY_MAKEUP_LIP,
-					CATEGORY_MAKEUP_MAGIC_FACE,
-					CATEGORY_MAKEUP_PUPIL,
-					CATEGORY_MAKEUP_SKIN_TEXTURE,
+					//CATEGORY_EYEBROW,
+					//CATEGORY_EYELASH,
+					//CATEGORY_MUSTACHE,
+					//CATEGORY_BEARD,
+					//CATEGORY_MAKEUP_BLUSHER,
+					//CATEGORY_MAKEUP_EYE,
+					//CATEGORY_MAKEUP_LIP,
+					//CATEGORY_MAKEUP_MAGIC_FACE,
+					//CATEGORY_MAKEUP_PUPIL,
+					//CATEGORY_MAKEUP_SKIN_TEXTURE,
 				};
 				TArray<FString> BodyCategoyList{
 					CATEGORY_COVERALL,
@@ -157,26 +159,26 @@ namespace nexthuman {
 							//AddBodyBundle(Tasks, Avatar, Asset.Name, Asset.Id);
 							AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
 						}
-						//if (Asset.Category == CATEGORY_ANIMATION_BODY) {
-						//	Tasks.AndThen(ENamedThreads::GameThread, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
-						//		UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(AvatarLoader.GetWorld());
-						//		CallbackWrapper->AddToRoot();
-						//		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-						//			CallbackWrapper->RemoveFromRoot();
-						//			UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
-						//			OnStepEnd(AAvatarLoader::FTestRet{ Code, Message });
-						//		};
-						//		FNHCallback Callback;
-						//		CallbackWrapper->SetCallback(Cb);
-						//		Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
-						//		Avatar->GetBody()->SetAnim(Asset.Id, Callback);
-						//		FString Temp = TEXT("IndexMap =>\n");
-						//		for (auto& KV : IndexMap) {
-						//			Temp.Appendf(TEXT("\t%s %d\n"), *KV.Key, KV.Value);
-						//		}
-						//		UE_LOG(LogTemp, Display, TEXT("%s"), *Temp);
-						//	});
-						//}
+						if (Asset.Category == CATEGORY_ANIMATION_BODY) {
+							Tasks.AndThen(ENamedThreads::GameThread, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
+								UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(AvatarLoader.GetWorld());
+								CallbackWrapper->AddToRoot();
+								auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+									CallbackWrapper->RemoveFromRoot();
+									UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
+									OnStepEnd(AAvatarLoader::FTestRet{ Code, Message });
+								};
+								FNHCallback Callback;
+								CallbackWrapper->SetCallback(Cb);
+								Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
+								Avatar->GetBody()->SetAnim(Asset.Id, Callback);
+								FString Temp = TEXT("IndexMap =>\n");
+								for (auto& KV : IndexMap) {
+									Temp.Appendf(TEXT("\t%s %d\n"), *KV.Key, KV.Value);
+								}
+								UE_LOG(LogTemp, Display, TEXT("%s"), *Temp);
+							});
+						}
 					}
 				};
 
@@ -193,12 +195,12 @@ namespace nexthuman {
 					}
 				};
 
-				for (int32 i = 0; i < 10; i++) {
-					Wear();
-					Delay(Tasks, 5);
-					Takeoff();
-					Delay(Tasks, 5);
-				}
+				//for (int32 i = 0; i < 10; i++) {
+				//	Wear();
+				//	Delay(Tasks, 5);
+				//	Takeoff();
+				//	Delay(Tasks, 5);
+				//}
 				Wear();
 				//Delay(Tasks, 5.0);
 				//Tasks.AndThen(ENamedThreads::GameThread, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
