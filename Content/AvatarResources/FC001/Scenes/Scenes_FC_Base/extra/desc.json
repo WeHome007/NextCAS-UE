@@ -6,12 +6,9 @@
 	"mountName": "Scenes_FC_Base",
 	"packerId": "FC001",
 	"category": "scene",
-	"gender": 0,
-	"version": "1.0.0",
-	"bodyId": "",
+
 	"desc": "场景",
-	"packerVersion": "1.3.0",
-	"editorVersion": "4.72.2",
+	
 	"containerIds": [
 		"win_ue"
 	]
