@@ -124,6 +124,8 @@ namespace nexthuman {
 				Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
 					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, int64 Id) {
 						OnStepEnd(AAvatarLoader::FTestRet{ Code, Message });
+						TArray<UActorComponent*> Bodys = Avatar->GetComponentsByTag(UActorComponent::StaticClass(), TEXT("Body"));
+						UE_LOG(LogTemp, Warning, TEXT("Bodys Num %d"), Bodys.Num());
 					});
 				});
 
@@ -394,100 +396,100 @@ void AAvatarLoader::BeginPlay()
 			//TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-					//struct LoadInfo {
-					//	FString AvatarId;
-					//	TArray<AAvatarLoader::FAsset> Assets;
-					//	FVector Position;
-					//	FRotator Rotation;
-					//};
-					//TArray<LoadInfo> LoadInfoArray{
-					//	{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)},
-					//	{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0)},
-					//	{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)},
+					struct LoadInfo {
+						FString AvatarId;
+						TArray<AAvatarLoader::FAsset> Assets;
+						FVector Position;
+						FRotator Rotation;
+					};
+					TArray<LoadInfo> LoadInfoArray{
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)},
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0)},
+						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)},
 
-					//	{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0)},
-					//	{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0)},
-					//	{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0)},
-					//};
-					//
-					//TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-					//	return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
-					//});
-					//int32 Index = 3;
-					//for (auto& Coverall : FemaleCoverall) {
-					//	LoadInfoArray.Add({ FA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
-					//}
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0)},
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0)},
+						{MA[CATEGORY_AVATAR], FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0)},
+					};
+					
+					TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
+						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
+					});
+					int32 Index = 3;
+					for (auto& Coverall : FemaleCoverall) {
+						LoadInfoArray.Add({ FA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+					}
 
-					//TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-					//	return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
-					//});
-					//Index = 3;
-					//for (auto& Coverall : MaleCoverall) {
-					//	LoadInfoArray.Add({ MA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
-					//}
+					TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
+						return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
+					});
+					Index = 3;
+					for (auto& Coverall : MaleCoverall) {
+						LoadInfoArray.Add({ MA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+					}
 
-					//for(auto& LoadInfo : LoadInfoArray)
-					//{
-					//	FTaskChain& Tasks = FTaskChain::Create();
-					//	FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation);
-					//	AvatarWrappers.Add(Wrapper);
-					//	(Wrapper)->Load();
-					//	Tasks.Start([=](const FTestRet& Last) {
-					//		AvatarWrappers.Remove(Wrapper);
-					//		UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
-					//	});
-					//}
+					for(auto& LoadInfo : LoadInfoArray)
+					{
+						FTaskChain& Tasks = FTaskChain::Create();
+						FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation);
+						AvatarWrappers.Add(Wrapper);
+						(Wrapper)->Load();
+						Tasks.Start([=](const FTestRet& Last) {
+							AvatarWrappers.Remove(Wrapper);
+							UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
+						});
+					}
 
 					
-					// FCEnv avatars
+					// //FCEnv avatars
 					//Load(Tasks, TEXT("avatar_6674375bedc1c3be2a44b127c3f67fff"), {}, FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
 					//Load(Tasks, TEXT("avatar_3acd2e9456fe6103c9489ba9f7329f0c"), {}, FVector(-50 * 2, -50, 0), FRotator(0, 0, 0));
 					/*Tasks.Start([=](const FTestRet& Last) {
 						UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
 					});*/
 
-					{
-						// Test Add,Add,Remove
-						ANextAvatar* Avatar = GetWorld()->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
-						if (Avatar) {
-							Avatar->SetAvatarId(TEXT("avatar_64241b207f42de7d0775140d"), [=](int32 Code, const FString& Message, int64) {
-								if (Code == 0) {
-									AsyncTask(ENamedThreads::GameThread, [=]() {
-										FNHCallback Callback;
-										UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(GetWorld());
-										CallbackWrapper->AddToRoot();
-										CallbackWrapper->SetCallback([=](int32 Code, const FString& Message, int64 Index) {
-											CallbackWrapper->RemoveFromRoot();
-											UE_LOG(LogTemp, Warning, TEXT("add bundle %s to body %d %s %lld"), TEXT("cloth_6437c90d9181074839341076"), Code, *Message, Index);
+					//{
+					//	// Test Add,Add,Remove
+					//	ANextAvatar* Avatar = GetWorld()->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
+					//	if (Avatar) {
+					//		Avatar->SetAvatarId(TEXT("avatar_64241b207f42de7d0775140d"), [=](int32 Code, const FString& Message, int64) {
+					//			if (Code == 0) {
+					//				AsyncTask(ENamedThreads::GameThread, [=]() {
+					//					FNHCallback Callback;
+					//					UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(GetWorld());
+					//					CallbackWrapper->AddToRoot();
+					//					CallbackWrapper->SetCallback([=](int32 Code, const FString& Message, int64 Index) {
+					//						CallbackWrapper->RemoveFromRoot();
+					//						UE_LOG(LogTemp, Warning, TEXT("add bundle %s to body %d %s %lld"), TEXT("cloth_6437c90d9181074839341076"), Code, *Message, Index);
 
-											if (Code == 0) {
-												AsyncTask(ENamedThreads::GameThread, [=]() {
-													FNHCallback Callback2;
-													UNHCallbackWrapper* Callback2Wrapper = NewObject<UNHCallbackWrapper>(GetWorld());
-													Callback2Wrapper->AddToRoot();
-													Callback2Wrapper->SetCallback([=](int32 Code, const FString& Message, int64 Index) {
-														Callback2Wrapper->RemoveFromRoot();
-														UE_LOG(LogTemp, Warning, TEXT("add bundle %s to body %d %s %lld"), TEXT("cloth_64421bfd886e096bfce937f5"), Code, *Message, Index);
+					//						if (Code == 0) {
+					//							AsyncTask(ENamedThreads::GameThread, [=]() {
+					//								FNHCallback Callback2;
+					//								UNHCallbackWrapper* Callback2Wrapper = NewObject<UNHCallbackWrapper>(GetWorld());
+					//								Callback2Wrapper->AddToRoot();
+					//								Callback2Wrapper->SetCallback([=](int32 Code, const FString& Message, int64 Index) {
+					//									Callback2Wrapper->RemoveFromRoot();
+					//									UE_LOG(LogTemp, Warning, TEXT("add bundle %s to body %d %s %lld"), TEXT("cloth_64421bfd886e096bfce937f5"), Code, *Message, Index);
 
-														if (Code == 0) {
-															AsyncTask(ENamedThreads::GameThread, [=]() {
-																bool Result = Avatar->GetBody()->RemoveBundle(0);
-																UE_LOG(LogTemp, Warning, TEXT(""));
-															});
-														}
-													});
-													Callback2.BindUFunction(Callback2Wrapper, TEXT("Run"));
-													Avatar->GetBody()->AddBundle(TEXT("cloth_64421bfd886e096bfce937f5"), Callback2);
-												});
-											}
-										});
-										Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
-										Avatar->GetBody()->AddBundle(TEXT("cloth_6437c90d9181074839341076"), Callback);
-									});
-								}
-							});
-						}
-					}
+					//									if (Code == 0) {
+					//										AsyncTask(ENamedThreads::GameThread, [=]() {
+					//											bool Result = Avatar->GetBody()->RemoveBundle(0);
+					//											UE_LOG(LogTemp, Warning, TEXT(""));
+					//										});
+					//									}
+					//								});
+					//								Callback2.BindUFunction(Callback2Wrapper, TEXT("Run"));
+					//								Avatar->GetBody()->AddBundle(TEXT("cloth_64421bfd886e096bfce937f5"), Callback2);
+					//							});
+					//						}
+					//					});
+					//					Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
+					//					Avatar->GetBody()->AddBundle(TEXT("cloth_6437c90d9181074839341076"), Callback);
+					//				});
+					//			}
+					//		});
+					//	}
+					//}
 				}
 			});
 	}
