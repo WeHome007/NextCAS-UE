@@ -398,7 +398,8 @@ void AAvatarLoader::BeginPlay()
 
 
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
-		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken,
+		INextHumanSDKModule::Get().Initialize(
+			TempAccessToken,/* Put your access token here */ 
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
 					struct FLoadInfo {
@@ -498,8 +499,8 @@ void AAvatarLoader::BeginPlay()
 					//}
 				}
 			},
-			TEXT(""),//TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
-			TEXT("V1"));
+			TEXT(""), //TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
+			TEXT(""));
 	}
 }
 
