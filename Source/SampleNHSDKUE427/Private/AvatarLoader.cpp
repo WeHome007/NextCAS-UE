@@ -122,28 +122,30 @@ namespace nexthuman {
 				INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
 				Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
-					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, int64 Id) {
+					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TArray<ANextAvatar::FBundleInfo> BundleInfos) {
 						OnStepEnd(AAvatarLoader::FTestRet{ Code, Message });
 						TArray<UActorComponent*> Bodys = Avatar->GetComponentsByTag(UActorComponent::StaticClass(), TEXT("Body"));
 						UE_LOG(LogTemp, Warning, TEXT("Bodys Num %d"), Bodys.Num());
+					}, [](const FString& Category) {
+						return Category == CATEGORY_HAIR;
 					});
 				});
 
 				TArray<FString> FaceCategoryList{
-					//CATEGORY_HAT,
-					//CATEGORY_GLASS,
-					//CATEGORY_EARRINGS,
+					CATEGORY_HAT,
+					CATEGORY_GLASS,
+					CATEGORY_EARRINGS,
 					CATEGORY_HAIR,
-					//CATEGORY_EYEBROW,
-					//CATEGORY_EYELASH,
-					//CATEGORY_MUSTACHE,
-					//CATEGORY_BEARD,
-					//CATEGORY_MAKEUP_BLUSHER,
-					//CATEGORY_MAKEUP_EYE,
-					//CATEGORY_MAKEUP_LIP,
-					//CATEGORY_MAKEUP_MAGIC_FACE,
-					//CATEGORY_MAKEUP_PUPIL,
-					//CATEGORY_MAKEUP_SKIN_TEXTURE,
+					CATEGORY_EYEBROW,
+					CATEGORY_EYELASH,
+					CATEGORY_MUSTACHE,
+					CATEGORY_BEARD,
+					CATEGORY_MAKEUP_BLUSHER,
+					CATEGORY_MAKEUP_EYE,
+					CATEGORY_MAKEUP_LIP,
+					CATEGORY_MAKEUP_MAGIC_FACE,
+					CATEGORY_MAKEUP_PUPIL,
+					CATEGORY_MAKEUP_SKIN_TEXTURE,
 				};
 				TArray<FString> BodyCategoyList{
 					CATEGORY_COVERALL,
@@ -200,13 +202,17 @@ namespace nexthuman {
 					}
 				};
 
-				//for (int32 i = 0; i < 10; i++) {
+				//for (int32 i = 0; i < 10000; i++) {
 				//	Wear();
-				//	Delay(Tasks, 5);
+				//	Delay(Tasks, 1.5);
 				//	Takeoff();
-				//	Delay(Tasks, 5);
+				//	Delay(Tasks, 1.5);
+				//	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
+				//		UE_LOG(LogTemp, Warning, TEXT("Wear/Takeoff %d"), i);
+				//		OnStepEnd(AAvatarLoader::FTestRet{ 0, TEXT("") });
+				//	});
 				//}
-				Wear();
+				//Wear();
 				//Delay(Tasks, 5.0);
 				//Tasks.AndThen(ENamedThreads::GameThread, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
 				//	Avatar->SetHidden(false);
@@ -392,17 +398,17 @@ void AAvatarLoader::BeginPlay()
 
 
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
-		INextHumanSDKModule::Get().Initialize(/* Put your access token here */ TempAccessToken,
-			//TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
+		INextHumanSDKModule::Get().Initialize(
+			TempAccessToken,/* Put your access token here */ 
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-					struct LoadInfo {
+					struct FLoadInfo {
 						FString AvatarId;
 						TArray<AAvatarLoader::FAsset> Assets;
 						FVector Position;
 						FRotator Rotation;
 					};
-					TArray<LoadInfo> LoadInfoArray{
+					TArray<FLoadInfo> LoadInfoArray{
 						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)},
 						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0)},
 						{FA[CATEGORY_AVATAR], FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)},
@@ -428,18 +434,19 @@ void AAvatarLoader::BeginPlay()
 						LoadInfoArray.Add({ MA[CATEGORY_AVATAR], TArray<AAvatarLoader::FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
 					}
 
-					for(auto& LoadInfo : LoadInfoArray)
-					{
-						FTaskChain& Tasks = FTaskChain::Create();
-						FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation);
-						AvatarWrappers.Add(Wrapper);
-						(Wrapper)->Load();
-						Tasks.Start([=](const FTestRet& Last) {
-							AvatarWrappers.Remove(Wrapper);
-							UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
-						});
+					for (int i = 0; i < LoadInfoArray.Num(); i++) {
+						FLoadInfo& LoadInfo = LoadInfoArray[i];
+						if (i == 1) {
+							FTaskChain& Tasks = FTaskChain::Create();
+							FAvatarWrapper* Wrapper = new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation);
+							AvatarWrappers.Add(Wrapper);
+							(Wrapper)->Load();
+							Tasks.Start([=](const FTestRet& Last) {
+								AvatarWrappers.Remove(Wrapper);
+								UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
+							});
+						}
 					}
-
 					
 					// //FCEnv avatars
 					//Load(Tasks, TEXT("avatar_6674375bedc1c3be2a44b127c3f67fff"), {}, FVector(-50 * 1, -50, 0), FRotator(0, 0, 0));
@@ -491,7 +498,9 @@ void AAvatarLoader::BeginPlay()
 					//	}
 					//}
 				}
-			});
+			},
+			TEXT(""), //TEXT("https://open-meta.tmall.com"), /* optional: custom server address ,*/
+			TEXT(""));
 	}
 }
 
