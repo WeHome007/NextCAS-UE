@@ -122,12 +122,16 @@ namespace nexthuman {
 				INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
 				Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const AAvatarLoader::FTestRet& Last, AAvatarLoader::FTaskChain::FOnStepEnd OnStepEnd) {
-					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TArray<ANextAvatar::FBundleInfo> BundleInfos) {
+					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
 						OnStepEnd(AAvatarLoader::FTestRet{ Code, Message });
 						TArray<UActorComponent*> Bodys = Avatar->GetComponentsByTag(UActorComponent::StaticClass(), TEXT("Body"));
-						UE_LOG(LogTemp, Warning, TEXT("Bodys Num %d"), Bodys.Num());
+						UE_LOG(LogTemp, Warning, TEXT("Bodys Num %d LoadedBundle Num %d"), Bodys.Num(), BundleInfos.Num());
+						for (auto& Info : BundleInfos) {
+							UE_LOG(LogTemp, Warning, TEXT("LoadedBundle %s %lld"), *Info.Value.Bundle.Id, Info.Value.Index);
+						}
 					}, [](const FString& Category) {
-						return Category == CATEGORY_HAIR;
+						//return Category == CATEGORY_HAIR;
+						return true;
 					});
 				});
 
