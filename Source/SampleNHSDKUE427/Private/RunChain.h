@@ -1,9 +1,7 @@
 #pragma once
 
-namespace nexthuman
-{
-    namespace sdk
-    {
+namespace nexthuman {
+    namespace sdk {
         namespace demo {
             struct FRet {
                 int32 Code;
@@ -22,6 +20,11 @@ namespace nexthuman
                 typedef TFunction<void(RET)> FCallback;
 
                 TTaskChain& AndThen(ENamedThreads::Type ThreadName, FTask Task) {
+                    Tasks.Add({ ThreadName, Task });
+                    return *this;
+                }
+
+                TTaskChain& AndThen(FTask Task, ENamedThreads::Type ThreadName = ENamedThreads::AnyNormalThreadNormalTask) {
                     Tasks.Add({ ThreadName, Task });
                     return *this;
                 }
