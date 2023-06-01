@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "NHCallbackWrapper.h"
-#include "RunChain.h"
-#include "NextAvatar.h"
-#include "NHCategory.h"
+#include "AvatarWrapper.h"
 #include "AvatarLoader.generated.h"
 
 UCLASS()
@@ -27,28 +24,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	struct FTestRet : public nexthuman::sdk::demo::FRet {
-		int64 ClothId;
-		int64 ShoesId;
-		int64 TrousersId;
-		FTestRet(int32 InCode = 0, FString InMessage = TEXT(""), int64 InClothId = INT64_MIN, int64 InShoesId = INT64_MIN, int64 InTrousersId = INT64_MIN) :FRet(InCode, InMessage), ClothId(InClothId), ShoesId(InShoesId), TrousersId(InTrousersId) {}
-	};
-	typedef nexthuman::sdk::demo::TTaskChain<FTestRet> FTaskChain;
-	enum class EGender {
-		FEMALE,
-		MALE,
-	};
-
-	struct FAsset {
-		const FString Name;
-		const FString Id;
-		const EGender Gender;
-		const FString Category;
-	};
-
 private:
-	TArray<FAsset> FindAssets(EGender Gender, int32 Index);
-	TArray<void*> AvatarWrappers;
-
-	static const TArray<FAsset> ASSETS;
+	void LoadTen();
+	void TestRestoreAndRemove();
+	TArray<TSharedPtr<nexthuman::sdk::demo::FAvatarWrapper>> AvatarWrappers;
 };
