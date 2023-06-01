@@ -7,10 +7,10 @@
 #include "NextAvatar.h"
 #include "NHCategory.h"
 #include "NHCallbackWrapper.h"
-#include "NHCategory.h"
 #include "NHCommon.h"
 #include "NHUtil.h"
 
+using namespace nexthuman::sdk;
 using namespace nexthuman::sdk::demo;
 
 // Sets default values
@@ -31,8 +31,8 @@ void AAvatarLoader::BeginPlay()
 			ACCESS_TOKEN,
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-					//LoadTen();
-					TestRestoreAndRemove();
+					LoadTen();
+					//TestRestoreAndRemove();
 				}
 			},
 			TEXT(""), //TEXT("https://open-meta.tmall.com"), // optional: custom server address
@@ -71,5 +71,8 @@ void AAvatarLoader::TestRestoreAndRemove() {
 				Avatar->RemoveBundle(Pair.Value.Index);
 			}
 		});
+	}, [](const FString& Category) {
+		// Only restore below categories
+		return Category != TEXT("");
 	});
 }

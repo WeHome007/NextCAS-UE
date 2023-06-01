@@ -38,8 +38,16 @@ void FAvatarWrapper::Load() {
 				UE_LOG(LogTemp, Warning, TEXT("LoadedBundle %s %lld"), *Info.Value.Bundle.Id, Info.Value.Index);
 			}
 		}, [](const FString& Category) {
-			//return Category == CATEGORY_HAIR;
-			return true;
+			// Only restore below categories
+			UE_LOG(LogTemp, Warning, TEXT("SetAvatarId: RestoreFilter %s"), *Category);
+			return CATEGORY_MORPH_HEAD == Category
+				|| CATEGORY_MORPH_BODY == Category
+				|| CATEGORY_MORPH_FACE == Category
+				|| CATEGORY_MORPH_EYES == Category
+				|| CATEGORY_MORPH_EARS == Category
+				|| CATEGORY_MORPH_NOSE == Category
+				|| CATEGORY_MORPH_MOUTH == Category
+				|| CATEGORY_MORPH_TEETH == Category;
 		});
 	});
 
