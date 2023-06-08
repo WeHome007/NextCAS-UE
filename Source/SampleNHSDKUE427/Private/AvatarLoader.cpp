@@ -32,10 +32,16 @@ void AAvatarLoader::BeginPlay()
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
 					LoadTen();
+
+					//INextHumanSDKModule::Get().PrepareResource(TEXT("fc_cartoon_male_01"), [=](int32 Code, const FString& Message) {
+					//});
+					//Load(nexthuman::sdk::demo::FEMALE_AVATAR_ID);
 					//TestRestoreAndRemove();
+					//Load(TEXT("avatar_641884b0ba43910940e21054"));
 				}
 			},
-			TEXT(""), //TEXT("https://open-meta.tmall.com"), // optional: custom server address
+			TEXT(""),
+			//TEXT("https://open-meta.tmall.com"),
 			TEXT(""));
 	}
 }
@@ -74,5 +80,17 @@ void AAvatarLoader::TestRestoreAndRemove() {
 	}, [](const FString& Category) {
 		// Only restore below categories
 		return Category != TEXT("");
+	});
+}
+
+void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const FRotator& Rotation) {
+	auto Avatar = GetWorld()->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
+	Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> LoadedBundle) {
+		UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %d %s %d"), Code, *Message, LoadedBundle.Num());
+		for (auto& Item : LoadedBundle) {
+			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %d"), *Item.Key, Item.Value.Index);
+		}
+	}, [](const FString& Category) {
+		return true;
 	});
 }
