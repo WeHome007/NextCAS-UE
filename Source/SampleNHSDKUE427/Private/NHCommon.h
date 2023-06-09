@@ -91,6 +91,11 @@ namespace nexthuman {
 				{ TEXT("SDK_Trouser_F_FC001"),	TEXT("trouser_6437d2829181074839341078"), EGender::FEMALE, CATEGORY_TROUSER },
 				{ TEXT("SDK_Trouser_F_FC002"),	TEXT("trouser_645887202a48eb54410d4c55"), EGender::FEMALE, CATEGORY_TROUSER },
 				{ TEXT("SDK_Trouser_F_neiyi"),	TEXT("trouser_6458ae112a48eb54410d4c6b"), EGender::FEMALE, CATEGORY_TROUSER },
+				{TEXT("SDK_Eyelashes_F_nh001"),	TEXT("eyelash_6482e3797941f3271e6c98a3"), EGender::FEMALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_F_nh002"),	TEXT("eyelash_6482e38eb325db3f950dca5e"), EGender::FEMALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_F_nh003"),	TEXT("eyelash_6482e39bb325db3f950dca5f"), EGender::FEMALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_F_nh004"),	TEXT("eyelash_6482e3a7b325db3f950dca60"), EGender::FEMALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_F_nh005"),	TEXT("eyelash_6482e3b5b325db3f950dca61"), EGender::FEMALE, CATEGORY_EYELASH },
 
 				{ TEXT("SDK_Beard_M_01"),		TEXT("beard_6441229dc6745f0f67a92203"),  EGender::MALE, CATEGORY_BEARD },
 				{ TEXT("SDK_Beard_M_02"),		TEXT("beard_645887312a48eb54410d4c56"),  EGender::MALE, CATEGORY_BEARD },
@@ -134,6 +139,12 @@ namespace nexthuman {
 				{ TEXT("SDK_Trouser_M_FC003"),	TEXT("trouser_644b7dcbb4473e4ba1d59566"),  EGender::MALE, CATEGORY_TROUSER },
 				{ TEXT("SDK_Trouser_M_FC004"),	TEXT("trouser_6458b02a2a48eb54410d4c6c"),  EGender::MALE, CATEGORY_TROUSER },
 				{ TEXT("SDK_Trouser_M_neiyi"),	TEXT("trouser_6458b03e2a48eb54410d4c6d"),  EGender::MALE, CATEGORY_TROUSER },
+				{TEXT("SDK_Eyelashes_M_nh001"),	TEXT("eyelash_6482e3c5b325db3f950dca62"), EGender::MALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_M_nh002"),	TEXT("eyelash_6482e3d6b325db3f950dca63"), EGender::MALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_M_nh003"),	TEXT("eyelash_6482e3e3b325db3f950dca64"), EGender::MALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_M_nh004"),	TEXT("eyelash_6482e3efb325db3f950dca65"), EGender::MALE, CATEGORY_EYELASH },
+				{TEXT("SDK_Eyelashes_M_nh005"),	TEXT("eyelash_6482e3fcb325db3f950dca66"), EGender::MALE, CATEGORY_EYELASH },
+
 			};
 		}
 	}

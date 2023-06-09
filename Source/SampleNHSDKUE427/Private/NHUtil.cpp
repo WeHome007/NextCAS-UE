@@ -16,6 +16,7 @@ TArray<FAsset> FNHUtil::FindAssets(EGender Gender, int32 InIndex) {
 		CATEGORY_MUSTACHE,
 		CATEGORY_BEARD,
 		CATEGORY_EYEBROW,
+		CATEGORY_EYELASH,
 		CATEGORY_MAKEUP_BLUSHER,
 		CATEGORY_MAKEUP_EYE,
 		CATEGORY_MAKEUP_LIP,
@@ -73,30 +74,72 @@ TArray<FAsset> FNHUtil::FindAssets(EGender Gender, int32 InIndex) {
 }
 
 TArray<FAvatarInfo> FNHUtil::GetAvatarInfo() {
-	TArray<FAvatarInfo> LoadInfoArray{
-		{FEMALE_AVATAR_ID, FindAssets(EGender::FEMALE, 0), FVector(50 * 1, -50, 0), FRotator(0, 0, 0)},
-		{FEMALE_AVATAR_ID, FindAssets(EGender::FEMALE, 1), FVector(50 * 2, -50, 0), FRotator(0, 0, 0)},
-		{FEMALE_AVATAR_ID, FindAssets(EGender::FEMALE, 2), FVector(50 * 3, -50, 0), FRotator(0, 0, 0)},
-
-		{MALE_AVATAR_ID, FindAssets(EGender::MALE, 0), FVector(-50 * 1, -50, 0), FRotator(0, 0, 0)},
-		{MALE_AVATAR_ID, FindAssets(EGender::MALE, 1), FVector(-50 * 2, -50, 0), FRotator(0, 0, 0)},
-		{MALE_AVATAR_ID, FindAssets(EGender::MALE, 2), FVector(-50 * 3, -50, 0), FRotator(0, 0, 0)},
-	};
-
-	TArray<FAsset> FemaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-		return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::FEMALE;
-	});
-	int32 Index = 3;
-	for (auto& Coverall : FemaleCoverall) {
-		LoadInfoArray.Add({ FEMALE_AVATAR_ID, TArray<FAsset>{ Coverall }, FVector(50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+	TArray<FAvatarInfo> LoadInfoArray;
+	TArray<TMap<FString, FAsset>> FemaleSuits = FNHUtil::Build(EGender::FEMALE);
+	int Index = 1;
+	for (auto& Suit : FemaleSuits) {
+		FAvatarInfo AvatarInfo;
+		AvatarInfo.AvatarId = FEMALE_AVATAR_ID;
+		Suit.GenerateValueArray(AvatarInfo.Assets);
+		AvatarInfo.Position = FVector(50 * Index, -50, 0);
+		AvatarInfo.Rotation = FRotator(0, 0, 0);
+		LoadInfoArray.Add(AvatarInfo);
+		Index++;
 	}
-
-	TArray<FAsset> MaleCoverall = ASSETS.FilterByPredicate([](const FAsset& Item) {
-		return Item.Category == CATEGORY_COVERALL && Item.Gender == EGender::MALE;
-	});
-	Index = 3;
-	for (auto& Coverall : MaleCoverall) {
-		LoadInfoArray.Add({ MALE_AVATAR_ID, TArray<FAsset>{ Coverall }, FVector(-50 * (Index++ + 1), -50, 0), FRotator(0, 0, 0) });
+	Index = 1;
+	TArray<TMap<FString, FAsset>> MaleSuits = FNHUtil::Build(EGender::MALE);
+	for (auto& Suit : MaleSuits) {
+		FAvatarInfo AvatarInfo;
+		AvatarInfo.AvatarId = MALE_AVATAR_ID;
+		Suit.GenerateValueArray(AvatarInfo.Assets);
+		AvatarInfo.Position = FVector(-50 * Index, -50, 0);
+		AvatarInfo.Rotation = FRotator(0, 0, 0);
+		LoadInfoArray.Add(AvatarInfo);
+		Index++;
 	}
 	return LoadInfoArray;
+}
+
+TArray<TMap<FString, FAsset>> FNHUtil::Build(EGender Gender) {
+	TArray<FAsset> FilteredAssets = ASSETS.FilterByPredicate([=](const FAsset& Item) { return Item.Gender == Gender; });
+	TMap<FString, TArray<FAsset>> AssetsMap;
+	for (auto& A : FilteredAssets) {
+		if (!AssetsMap.Contains(A.Category)) {
+			AssetsMap.Add(A.Category, TArray<FAsset>{});
+		}
+
+		AssetsMap[A.Category].Add(A);
+	}
+
+	TArray<TMap<FString, FAsset>> Suits;
+	for (auto& Pair : AssetsMap) {
+		if (Pair.Key == CATEGORY_COVERALL) {
+			continue;
+		}
+		for (int i = 0; i < Pair.Value.Num(); i++) {
+			if (i >= Suits.Num()) {
+				Suits.Add(TMap<FString, FAsset>());
+			}
+			Suits[i].Add(Pair.Value[i].Category, Pair.Value[i]);
+		}
+	}
+
+	TArray<FAsset> CoverallAssets = AssetsMap[CATEGORY_COVERALL];
+	if (CoverallAssets.Num() > 0) {
+		int Index = 0;
+		for (int j = 0; j < Suits.Num(); j++) {
+			if (!Suits[j].Contains(CATEGORY_CLOTH) && !Suits[j].Contains(CATEGORY_TROUSER)) {
+				Suits[j].Add(CATEGORY_COVERALL, CoverallAssets[Index]);
+				Index++;
+			}
+		}
+		while (Index < CoverallAssets.Num())
+		{
+			TMap<FString, FAsset> NewOne;
+			NewOne.Add(CATEGORY_COVERALL, CoverallAssets[Index]);
+			Suits.Add(NewOne);
+			Index++;
+		}
+	}
+	return Suits;
 }

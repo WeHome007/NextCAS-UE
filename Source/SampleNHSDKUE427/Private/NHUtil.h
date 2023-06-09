@@ -8,6 +8,7 @@ namespace nexthuman {
 			public:
 				static TArray<FAsset> FindAssets(EGender Gender, int32 InIndex);
 				static TArray<FAvatarInfo> GetAvatarInfo();
+				static TArray<TMap<FString, FAsset>> Build(EGender Gender);
 			};
 		}
 	}
