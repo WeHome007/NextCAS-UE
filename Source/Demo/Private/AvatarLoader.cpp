@@ -87,7 +87,11 @@ void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const 
 		for (auto& Item : LoadedBundle) {
 			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %d"), *Item.Key, Item.Value.Index);
 		}
+
+		Avatar->AddBundleById(TEXT("cloth_6434df618b3a9d45f9c9d1b9"), [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("===>>> %d %s %lld"), Code, *Message, Index);
+		});
 	}, [](const FString& Category) {
-		return true;
+		return false;
 	});
 }
