@@ -26,23 +26,20 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 
+	static const FString Domain = TEXT("https://open-meta.tmall.com");
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
 		INextHumanSDKModule::Get().Initialize(
 			ACCESS_TOKEN,
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
-					LoadTen();
-
-					//INextHumanSDKModule::Get().PrepareResource(TEXT("fc_cartoon_male_01"), [=](int32 Code, const FString& Message) {
-					//});
-					//Load(nexthuman::sdk::demo::FEMALE_AVATAR_ID);
-					//TestRestoreAndRemove();
-					//Load(TEXT("avatar_641884b0ba43910940e21054"));
+					if (Domain.IsEmpty()) {
+						LoadTen();
+					}
+					else {
+						Load(TEXT("avatar_641884b0ba43910940e21054"));
+					}
 				}
-			},
-			TEXT(""),
-			//TEXT("https://open-meta.tmall.com"),
-			TEXT(""));
+			}, Domain);
 	}
 }
 
