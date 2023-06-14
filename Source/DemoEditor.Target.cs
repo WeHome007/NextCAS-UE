@@ -4,11 +4,11 @@ using UnrealBuildTool;
 using System.Collections.Generic;
 using System;
 
-public class DemoTarget : TargetRules
+public class DemoEditorTarget : TargetRules
 {
-	public DemoTarget(TargetInfo Target) : base(Target)
+	public DemoEditorTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Game;
+		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
 		if(Target.Platform == UnrealTargetPlatform.Mac || Target.Platform == UnrealTargetPlatform.IOS) {
