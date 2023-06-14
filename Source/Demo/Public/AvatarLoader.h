@@ -8,7 +8,7 @@
 #include "AvatarLoader.generated.h"
 
 UCLASS()
-class SAMPLENHSDKUE427_API AAvatarLoader : public AActor
+class DEMO_API AAvatarLoader : public AActor
 {
 	GENERATED_BODY()
 	

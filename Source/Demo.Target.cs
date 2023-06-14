@@ -4,9 +4,9 @@ using UnrealBuildTool;
 using System.Collections.Generic;
 using System;
 
-public class SampleNHSDKUE427EditorTarget : TargetRules
+public class DemoTarget : TargetRules
 {
-	public SampleNHSDKUE427EditorTarget(TargetInfo Target) : base(Target)
+	public DemoTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
@@ -16,6 +16,6 @@ public class SampleNHSDKUE427EditorTarget : TargetRules
 	        AdditionalCompilerArguments = " -Wno-unused-but-set-variable";
 		}
 
-        ExtraModuleNames.AddRange( new string[] { "SampleNHSDKUE427" } );
+        ExtraModuleNames.AddRange( new string[] { "Demo" } );
 	}
 }

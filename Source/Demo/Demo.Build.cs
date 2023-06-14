@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class SampleNHSDKUE427 : ModuleRules
+public class Demo : ModuleRules
 {
-	public SampleNHSDKUE427(ReadOnlyTargetRules Target) : base(Target)
+	public Demo(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
