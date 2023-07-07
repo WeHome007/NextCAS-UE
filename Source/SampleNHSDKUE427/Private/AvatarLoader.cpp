@@ -26,14 +26,17 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 
-	static const FString Domain = TEXT("https://open-meta.tmall.com");
+	static const FString Domain =
+		//TEXT("https://open-meta.tmall.com");
+		TEXT("");
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
 		INextHumanSDKModule::Get().Initialize(
 			ACCESS_TOKEN,
 			[=](int32 Code, const FString& Message) {
-				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
+				if (Code == INextHumanSDKModule::CODE_SUCCESS && !FParse::Param(FCommandLine::Get(), TEXT("nexthuman.notest"))) {
 					if (Domain.IsEmpty()) {
 						LoadTen();
+						//Load(FEMALE_AVATAR_ID);
 					}
 					else {
 						Load(TEXT("avatar_641884b0ba43910940e21054"));
@@ -85,7 +88,7 @@ void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const 
 	Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> LoadedBundle) {
 		UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %d %s %d"), Code, *Message, LoadedBundle.Num());
 		for (auto& Item : LoadedBundle) {
-			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %d"), *Item.Key, Item.Value.Index);
+			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %lld %d %s"), *Item.Key, Item.Value.Index, Item.Value.Code, *Item.Value.Message);
 		}
 	}, [](const FString& Category) {
 		return true;
