@@ -33,7 +33,7 @@ void AAvatarLoader::BeginPlay()
 		INextHumanSDKModule::Get().Initialize(
 			ACCESS_TOKEN,
 			[=](int32 Code, const FString& Message) {
-				if (Code == INextHumanSDKModule::CODE_SUCCESS) {
+				if (Code == INextHumanSDKModule::CODE_SUCCESS && !FParse::Param(FCommandLine::Get(), TEXT("nexthuman.notest"))) {
 					if (Domain.IsEmpty()) {
 						LoadTen();
 					}
@@ -88,7 +88,7 @@ void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const 
 	Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> LoadedBundle) {
 		UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %d %s %d"), Code, *Message, LoadedBundle.Num());
 		for (auto& Item : LoadedBundle) {
-			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %d"), *Item.Key, Item.Value.Index);
+			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %lld %d %s"), *Item.Key, Item.Value.Index, Item.Value.Code, *Item.Value.Message);
 		}
 	}, [](const FString& Category) {
 		return false;
