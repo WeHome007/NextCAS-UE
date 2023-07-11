@@ -6,9 +6,85 @@
 #include "NHCallbackWrapper.h"
 using namespace nexthuman::sdk::demo;
 
+const TArray<FString> FAvatarWrapper::FaceCategoryList{
+	CATEGORY_HAT,
+	CATEGORY_GLASS,
+	CATEGORY_EARRINGS,
+	CATEGORY_HAIR,
+	CATEGORY_EYEBROW,
+	CATEGORY_EYELASH,
+	CATEGORY_MUSTACHE,
+	CATEGORY_BEARD,
+	CATEGORY_MAKEUP_BLUSHER,
+	CATEGORY_MAKEUP_EYE,
+	CATEGORY_MAKEUP_LIP,
+	CATEGORY_MAKEUP_MAGIC_FACE,
+	CATEGORY_MAKEUP_PUPIL,
+	CATEGORY_MAKEUP_SKIN_TEXTURE,
+};
+
+const TArray<FString> FAvatarWrapper::BodyCategoyList{
+		CATEGORY_COVERALL,
+		CATEGORY_CLOTH,
+		CATEGORY_TROUSER,
+		CATEGORY_SHOES,
+		CATEGORY_NECKLACE,
+		CATEGORY_GLOVES,
+		CATEGORY_SOCKS,
+};
+
 FAvatarWrapper::FAvatarWrapper(AAvatarLoader& InAvatarLoader, FTestTaskChain& InTasks, const FString& InAvatarId, TArray<FAsset> InAssets, const FVector& InPosition, const FRotator& InRotation)
 	: AvatarLoader(InAvatarLoader), Tasks(InTasks), AvatarId(InAvatarId), Assets(InAssets), Position(InPosition), Rotation(InRotation)
 {
+}
+
+FAvatarWrapper::~FAvatarWrapper() {
+	UE_LOG(LogTemp, Warning, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *AvatarId);
+	//FDebug::DumpStackTraceToLog(ELogVerbosity::Warning);
+}
+
+void FAvatarWrapper::Wear(ANextAvatar* Avatar, FTestTaskChain& Chain) {
+	for (auto& Asset : Assets) {
+		if (FaceCategoryList.Contains(Asset.Category)) {
+			//AddFaceBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+		}
+		if (BodyCategoyList.Contains(Asset.Category)) {
+			//AddBodyBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+		}
+		if (Asset.Category == CATEGORY_ANIMATION_BODY) {
+			Tasks.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
+				auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
+					UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
+					OnStepEnd(FTestRet{ Code, Message });
+				};
+				Avatar->GetBody()->SetAnim(Asset.Id, Cb);
+				FString Temp = TEXT("IndexMap =>\n");
+				for (auto& KV : IndexMap) {
+					Temp.Appendf(TEXT("\t%s %d\n"), *KV.Key, KV.Value);
+				}
+				UE_LOG(LogTemp, Display, TEXT("%s"), *Temp);
+			});
+		}
+	}
+}
+
+void FAvatarWrapper::Takeoff(ANextAvatar* Avatar, FTestTaskChain& Chain) {
+	for (auto& Asset : Assets) {
+		if (FaceCategoryList.Contains(Asset.Category)) {
+			//RemoveFaceBundle(Tasks, Avatar, Asset.Name);
+			RemoveBundle(Tasks, Avatar, Asset.Name);
+		}
+		if (BodyCategoyList.Contains(Asset.Category)) {
+			//RemoveBodyBundle(Tasks, Avatar, Asset.Name);
+			RemoveBundle(Tasks, Avatar, Asset.Name);
+		}
+	}
+}
+
+void FAvatarWrapper::Dummy() {
+	UE_LOG(LogTemp, Display, TEXT("%s"), ANSI_TO_TCHAR(__FUNCTION__));
 }
 
 void FAvatarWrapper::Load() {
@@ -29,8 +105,9 @@ void FAvatarWrapper::Load() {
 
 	INextHumanSDKModule& SDK = INextHumanSDKModule::Get();
 
-	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
-		Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
+	FString TempId = AvatarId;
+	Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [Avatar, TempId](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
+		Avatar->SetAvatarId(TempId, [Avatar, OnStepEnd](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
 			OnStepEnd(FTestRet{ Code, Message });
 			TArray<UActorComponent*> Bodys = Avatar->GetComponentsByTag(UActorComponent::StaticClass(), TEXT("Body"));
 			UE_LOG(LogTemp, Warning, TEXT("Bodys Num %d LoadedBundle Num %d"), Bodys.Num(), BundleInfos.Num());
@@ -40,111 +117,32 @@ void FAvatarWrapper::Load() {
 		}, [](const FString& Category) {
 			// Only restore below categories
 			UE_LOG(LogTemp, Warning, TEXT("SetAvatarId: RestoreFilter %s"), *Category);
-			return CATEGORY_MORPH_HEAD == Category
-				|| CATEGORY_MORPH_BODY == Category
-				|| CATEGORY_MORPH_FACE == Category
-				|| CATEGORY_MORPH_EYES == Category
-				|| CATEGORY_MORPH_EARS == Category
-				|| CATEGORY_MORPH_NOSE == Category
-				|| CATEGORY_MORPH_MOUTH == Category
-				|| CATEGORY_MORPH_TEETH == Category;
+			return false;
 		});
+
+		//OnStepEnd(FTestRet{ 0, TEXT("") });
 	});
 
-	TArray<FString> FaceCategoryList{
-		CATEGORY_HAT,
-		CATEGORY_GLASS,
-		CATEGORY_EARRINGS,
-		CATEGORY_HAIR,
-		CATEGORY_EYEBROW,
-		CATEGORY_EYELASH,
-		CATEGORY_MUSTACHE,
-		CATEGORY_BEARD,
-		CATEGORY_MAKEUP_BLUSHER,
-		CATEGORY_MAKEUP_EYE,
-		CATEGORY_MAKEUP_LIP,
-		CATEGORY_MAKEUP_MAGIC_FACE,
-		CATEGORY_MAKEUP_PUPIL,
-		CATEGORY_MAKEUP_SKIN_TEXTURE,
-	};
-	TArray<FString> BodyCategoyList{
-		CATEGORY_COVERALL,
-		CATEGORY_CLOTH,
-		CATEGORY_TROUSER,
-		CATEGORY_SHOES,
-		CATEGORY_NECKLACE,
-		CATEGORY_GLOVES,
-		CATEGORY_SOCKS,
-	};
-	auto Wear = [=]() {
-		for (auto& Asset : Assets) {
-			if (FaceCategoryList.Contains(Asset.Category)) {
-				//AddFaceBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-				AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-			}
-			if (BodyCategoyList.Contains(Asset.Category)) {
-				//AddBodyBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-				AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-			}
-			if (Asset.Category == CATEGORY_ANIMATION_BODY) {
-				Tasks.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
-					UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(AvatarLoader.GetWorld());
-					CallbackWrapper->AddToRoot();
-					auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-						CallbackWrapper->RemoveFromRoot();
-						UE_LOG(LogTemp, Warning, TEXT("set anim to body %d, %s, %d"), Code, *Message, Index);
-						OnStepEnd(FTestRet{ Code, Message });
-					};
-					FNHCallback Callback;
-					CallbackWrapper->SetCallback(Cb);
-					Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
-					Avatar->GetBody()->SetAnim(Asset.Id, Callback);
-					FString Temp = TEXT("IndexMap =>\n");
-					for (auto& KV : IndexMap) {
-						Temp.Appendf(TEXT("\t%s %d\n"), *KV.Key, KV.Value);
-					}
-					UE_LOG(LogTemp, Display, TEXT("%s"), *Temp);
-				});
-			}
-		}
-	};
-
-	auto Takeoff = [=]() {
-		for (auto& Asset : Assets) {
-			if (FaceCategoryList.Contains(Asset.Category)) {
-				//RemoveFaceBundle(Tasks, Avatar, Asset.Name);
-				RemoveBundle(Tasks, Avatar, Asset.Name);
-			}
-			if (BodyCategoyList.Contains(Asset.Category)) {
-				//RemoveBodyBundle(Tasks, Avatar, Asset.Name);
-				RemoveBundle(Tasks, Avatar, Asset.Name);
-			}
-		}
-	};
-
-	for (int32 i = 0; i < 0; i++) {
-		Wear();
+	for (int32 i = 0; i < 10000; i++) {
+		Wear(Avatar, Tasks);
 		Delay(Tasks, 1);
-		Takeoff();
+		Takeoff(Avatar, Tasks);
 		Delay(Tasks, 1);
 		Tasks.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
+			Dummy();
 			UE_LOG(LogTemp, Warning, TEXT("Wear/Takeoff %d"), i);
 			OnStepEnd(FTestRet{ 0, TEXT("") });
 		});
 	}
-	Wear();
-	//Delay(Tasks, 5.0);
-	//Tasks.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
-	//	Avatar->SetHidden(false);
-	//	OnStepEnd(FTestRet{ 0, TEXT("") });
-	//});
+	Wear(Avatar, Tasks);
 }
 
 void FAvatarWrapper::AddBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete) {
+	FString TempKey = Key;
 	Chain.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
 		Avatar->AddBundleById(Id, [=](int32 Code, const FString& Message, int64 Index) {
 			if (Code == 0) {
-				IndexMap.Add(TEXT("NA_") + Key, Index);
+				IndexMap.Add(TEXT("NA_") + TempKey, Index);
 			}
 			UE_LOG(LogTemp, Warning, TEXT("AddBundleById %d %s %d %s"), Code, *Message, Index, *Id);
 			OnStepEnd(FTestRet{ Code, Message });
@@ -174,10 +172,7 @@ void FAvatarWrapper::RemoveBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, co
 
 void FAvatarWrapper::AddFaceBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete) {
 	Chain.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
-		UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(AvatarLoader.GetWorld());
-		CallbackWrapper->AddToRoot();
 		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-			CallbackWrapper->RemoveFromRoot();
 			FString Temp = FString::Printf(TEXT("Add %s to face %d, %s, %d. IndexMap =>\n"), *Key, Code, *Message, Index);
 			if (Code == 0) {
 				IndexMap.Add(Key, Index);
@@ -190,19 +185,13 @@ void FAvatarWrapper::AddFaceBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, c
 			OnComplete(Index);
 			OnStepEnd(FTestRet{ Code, Message });
 		};
-		FNHCallback Callback;
-		CallbackWrapper->SetCallback(Cb);
-		Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
-		Avatar->GetBody()->GetFace()->AddBundle(Id, Callback);
+		Avatar->GetBody()->GetFace()->AddBundle(Id, Cb);
 	});
 }
 
 void FAvatarWrapper::AddBodyBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, const FString& Key, const FString& Id, TFunction<void(int64)> OnComplete) {
 	Chain.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
-		UNHCallbackWrapper* CallbackWrapper = NewObject<UNHCallbackWrapper>(AvatarLoader.GetWorld());
-		CallbackWrapper->AddToRoot();
 		auto Cb = [=](int32 Code, const FString& Message, int64 Index) {
-			CallbackWrapper->RemoveFromRoot();
 			FString Temp = FString::Printf(TEXT("Add %s to body %d, %s, %d. IndexMap =>\n"), *Key, Code, *Message, Index);
 			if (Code == 0) {
 				IndexMap.Add(Key, Index);
@@ -215,10 +204,7 @@ void FAvatarWrapper::AddBodyBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, c
 			OnComplete(Index);
 			OnStepEnd(FTestRet{ Code, Message });
 		};
-		FNHCallback Callback;
-		CallbackWrapper->SetCallback(Cb);
-		Callback.BindUFunction(CallbackWrapper, TEXT("Run"));
-		Avatar->GetBody()->AddBundle(Id, Callback);
+		Avatar->GetBody()->AddBundle(Id, Cb);
 	});
 }
 

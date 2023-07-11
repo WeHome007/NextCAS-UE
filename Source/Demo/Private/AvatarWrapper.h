@@ -18,6 +18,7 @@ namespace nexthuman {
 					TArray<FAsset> InAssets,
 					const FVector& InPosition,
 					const FRotator& InRotation);
+				~FAvatarWrapper();
 
 				void Load();
 
@@ -55,6 +56,15 @@ namespace nexthuman {
 				void Delay(FTestTaskChain& Chain,
 					float Seconds);
 
+				void Wear(ANextAvatar* Avatar,
+					FTestTaskChain& Chain);
+
+				void Takeoff(ANextAvatar* Avatar,
+					FTestTaskChain& Chain);
+
+				void Dummy();
+
+			public:
 				AAvatarLoader& AvatarLoader;
 				FTestTaskChain& Tasks;
 				FString AvatarId;
@@ -62,6 +72,9 @@ namespace nexthuman {
 				FVector Position;
 				FRotator Rotation;
 				TMap<FString, int64> IndexMap;
+
+				static const TArray<FString> FaceCategoryList;
+				static const TArray<FString> BodyCategoyList;
 			};
 		}
 	}
