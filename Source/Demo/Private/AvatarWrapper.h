@@ -76,6 +76,7 @@ namespace nexthuman {
 				static const TArray<FString> FaceCategoryList;
 				static const TArray<FString> BodyCategoyList;
 			};
+			typedef TSharedPtr<FAvatarWrapper, ESPMode::ThreadSafe> FAvatarWrapperPtr;
 		}
 	}
 }

@@ -4,6 +4,9 @@
 #include "NextAvatar.h"
 #include "NHCommon.h"
 #include "NHCallbackWrapper.h"
+
+#include "HAL/ThreadManager.h"
+
 using namespace nexthuman::sdk::demo;
 
 const TArray<FString> FAvatarWrapper::FaceCategoryList{
@@ -39,19 +42,26 @@ FAvatarWrapper::FAvatarWrapper(AAvatarLoader& InAvatarLoader, FTestTaskChain& In
 }
 
 FAvatarWrapper::~FAvatarWrapper() {
-	UE_LOG(LogTemp, Warning, TEXT("%s: %s"), ANSI_TO_TCHAR(__FUNCTION__), *AvatarId);
-	//FDebug::DumpStackTraceToLog(ELogVerbosity::Warning);
+	uint32 ThreadId = FPlatformTLS::GetCurrentThreadId();
+	FString Name = FThreadManager::Get().GetThreadName(ThreadId);
+
+	UE_LOG(LogTemp, Warning, TEXT("==>> %s: %s %p %d %s"), ANSI_TO_TCHAR(__FUNCTION__), *AvatarId, this, ThreadId, *Name);
+	FDebug::DumpStackTraceToLog(ELogVerbosity::Warning);
 }
 
 void FAvatarWrapper::Wear(ANextAvatar* Avatar, FTestTaskChain& Chain) {
 	for (auto& Asset : Assets) {
 		if (FaceCategoryList.Contains(Asset.Category)) {
 			//AddFaceBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id, [=](int64) {
+				UE_LOG(LogTemp, Warning, TEXT("FAvatarWrapper::Wear1 %s"), ANSI_TO_TCHAR(__FUNCTION__));
+			});
 		}
 		if (BodyCategoyList.Contains(Asset.Category)) {
 			//AddBodyBundle(Tasks, Avatar, Asset.Name, Asset.Id);
-			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id);
+			AddBundle(Tasks, Avatar, Asset.Name, Asset.Id, [=](int64) {
+				UE_LOG(LogTemp, Warning, TEXT("FAvatarWrapper::Wear2 %s"), ANSI_TO_TCHAR(__FUNCTION__));
+			});
 		}
 		if (Asset.Category == CATEGORY_ANIMATION_BODY) {
 			Tasks.AndThen(ENamedThreads::GameThread, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
@@ -123,7 +133,7 @@ void FAvatarWrapper::Load() {
 		//OnStepEnd(FTestRet{ 0, TEXT("") });
 	});
 
-	for (int32 i = 0; i < 10000; i++) {
+	for (int32 i = 0; i < 0; i++) {
 		Wear(Avatar, Tasks);
 		Delay(Tasks, 1);
 		Takeoff(Avatar, Tasks);
@@ -141,6 +151,7 @@ void FAvatarWrapper::AddBundle(FTestTaskChain& Chain, ANextAvatar* Avatar, const
 	FString TempKey = Key;
 	Chain.AndThen(ENamedThreads::AnyNormalThreadNormalTask, [=](const FTestRet& Last, FTestTaskChain::FOnStepEnd OnStepEnd) {
 		Avatar->AddBundleById(Id, [=](int32 Code, const FString& Message, int64 Index) {
+			UE_LOG(LogTemp, Warning, TEXT("FAvatarWrapper::AddBundle 1 %s"), ANSI_TO_TCHAR(__FUNCTION__));
 			if (Code == 0) {
 				IndexMap.Add(TEXT("NA_") + TempKey, Index);
 			}

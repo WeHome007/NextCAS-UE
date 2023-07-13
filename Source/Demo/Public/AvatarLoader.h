@@ -28,5 +28,5 @@ private:
 	void LoadTen();
 	void TestRestoreAndRemove();
 	void Load(const FString AvatarId, const FVector& Position = { 0, 0, 0 }, const FRotator& Rotation = { 0, 0, 0 });
-	TArray<TSharedPtr<nexthuman::sdk::demo::FAvatarWrapper>> AvatarWrappers;
+	TArray<nexthuman::sdk::demo::FAvatarWrapperPtr> AvatarWrappers;
 };
