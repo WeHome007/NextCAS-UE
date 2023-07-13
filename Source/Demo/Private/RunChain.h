@@ -70,12 +70,14 @@ namespace nexthuman {
                     FTaskInfo& Task = Tasks[Index];
                     AsyncTask(Task.ThreadName, [=]()
                         {
-                            UE_LOG(LogTemp, Display, TEXT("Run %d"), Index);
+                            UE_LOG(LogTemp, Display, TEXT("1RunAt %d %s"), Index, ANSI_TO_TCHAR(__FUNCTION__));
                             Task.Task(PreviousRet, [=](RET Ret)
                                 {
+                                    UE_LOG(LogTemp, Display, TEXT("2RunAt %d %s"), Index, ANSI_TO_TCHAR(__FUNCTION__));
                                     //UE_LOG(LogTemp, Display, TEXT("RunAt End %d %d %s"), Index, Ret.Code, *Ret.Message);
                                     if (Ret.Code != 0 || Index + 1 == Tasks.Num()) {
                                         //UE_LOG(LogTemp, Display, TEXT("Run Complete %d"), Index);
+                                        Tasks.Empty();
                                         Callback(Ret);
                                         return;
                                     }
