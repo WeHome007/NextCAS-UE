@@ -57,7 +57,7 @@ void AAvatarLoader::LoadTen() {
 		FAvatarInfo& LoadInfo = Avatars[i];
 		if (i < Avatars.Num()) {
 			FTestTaskChain& Tasks = FTestTaskChain::Create();
-			TSharedPtr<FAvatarWrapper> Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation));
+			FAvatarWrapperPtr Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation));
 			AvatarWrappers.Add(Wrapper);
 			(Wrapper)->Load();
 			Tasks.Start([=](const FTestRet& Last) {
