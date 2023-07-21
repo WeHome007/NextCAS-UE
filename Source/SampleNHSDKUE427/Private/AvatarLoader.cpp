@@ -54,11 +54,11 @@ void AAvatarLoader::Tick(float DeltaTime)
 
 void AAvatarLoader::LoadTen() {
 	TArray<FAvatarInfo> Avatars = FNHUtil::GetAvatarInfo();
-	for (int i = 0; i < Avatars.Num(); i++) {
+	for (int i = 0; i < 1; i++) {
 		FAvatarInfo& LoadInfo = Avatars[i];
 		if (i < Avatars.Num()) {
 			FTestTaskChain& Tasks = FTestTaskChain::Create();
-			TSharedPtr<FAvatarWrapper> Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation));
+			TSharedPtr<FAvatarWrapper> Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, FVector::ZeroVector, FRotator::ZeroRotator));
 			AvatarWrappers.Add(Wrapper);
 			(Wrapper)->Load();
 			Tasks.Start([=](const FTestRet& Last) {
