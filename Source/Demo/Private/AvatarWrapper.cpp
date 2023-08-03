@@ -46,7 +46,7 @@ FAvatarWrapper::~FAvatarWrapper() {
 	FString Name = FThreadManager::Get().GetThreadName(ThreadId);
 
 	UE_LOG(LogTemp, Warning, TEXT("==>> %s: %s %p %d %s"), ANSI_TO_TCHAR(__FUNCTION__), *AvatarId, this, ThreadId, *Name);
-	FDebug::DumpStackTraceToLog(ELogVerbosity::Warning);
+	//FDebug::DumpStackTraceToLog(ELogVerbosity::Warning);
 }
 
 void FAvatarWrapper::Wear(ANextAvatar* Avatar, FTestTaskChain& Chain) {

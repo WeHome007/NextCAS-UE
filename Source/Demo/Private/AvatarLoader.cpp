@@ -35,7 +35,17 @@ void AAvatarLoader::BeginPlay()
 			[=](int32 Code, const FString& Message) {
 				if (Code == INextHumanSDKModule::CODE_SUCCESS && !FParse::Param(FCommandLine::Get(), TEXT("nexthuman.notest"))) {
 					if (Domain.IsEmpty()) {
-						LoadTen();
+						auto Infos = FNHUtil::GetAvatarInfo();
+						for (int i = 0; i < Infos.Num(); i++) {
+							Load(Infos[i]);
+						}
+
+						//Load(FEMALE_AVATAR_ID, {
+						//	TEXT("eyemakeup_64a5382a7868363aa03260bc"),
+						//	TEXT("blusher_64a538157868363aa03260bb"),
+						//	TEXT("eyelash_6482e3a7b325db3f950dca60"),
+						//	TEXT("eyebrow_645885a32a48eb54410d4c49"),
+						//	});
 					}
 					else {
 						Load(TEXT("avatar_641884b0ba43910940e21054"));
@@ -51,38 +61,18 @@ void AAvatarLoader::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AAvatarLoader::LoadTen() {
-	TArray<FAvatarInfo> Avatars = FNHUtil::GetAvatarInfo();
-	for (int i = 0; i < Avatars.Num(); i++) {
-		FAvatarInfo& LoadInfo = Avatars[i];
-		if (i < Avatars.Num()) {
-			FTestTaskChain& Tasks = FTestTaskChain::Create();
-			FAvatarWrapperPtr Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, LoadInfo.AvatarId, LoadInfo.Assets, LoadInfo.Position, LoadInfo.Rotation));
-			AvatarWrappers.Add(Wrapper);
-			(Wrapper)->Load();
-			Tasks.Start([=](const FTestRet& Last) {
-				AvatarWrappers.Remove(Wrapper);
-				UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
-			});
-		}
-	}
-}
-
-void AAvatarLoader::TestRestoreAndRemove() {
-	auto Avatar = GetWorld()->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
-	Avatar->SetAvatarId(FEMALE_AVATAR_ID, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> LoadedBundle) {
-		AsyncTask(ENamedThreads::GameThread, [=]() {
-			for (auto Pair : LoadedBundle) {
-				Avatar->RemoveBundle(Pair.Value.Index);
-			}
-		});
-	}, [](const FString& Category) {
-		// Only restore below categories
-		return Category != TEXT("");
+void AAvatarLoader::Load(FAvatarInfo AvatarInfo) {
+	FTestTaskChain& Tasks = FTestTaskChain::Create();
+	FAvatarWrapperPtr Wrapper = MakeShareable(new FAvatarWrapper(*this, Tasks, AvatarInfo.AvatarId, AvatarInfo.Assets, AvatarInfo.Position, AvatarInfo.Rotation));
+	AvatarWrappers.Add(Wrapper);
+	(Wrapper)->Load();
+	Tasks.Start([=](const FTestRet& Last) {
+		AvatarWrappers.Remove(Wrapper);
+		UE_LOG(LogTemp, Warning, TEXT("End %d %s"), Last.Code, *Last.Message);
 	});
 }
 
-void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const FRotator& Rotation) {
+void AAvatarLoader::Load(const FString AvatarId, TArray<FString> BundleIds, ANextAvatar::FRestoreFilter RestoreFilter, const FVector& Position, const FRotator& Rotation) {
 	auto Avatar = GetWorld()->SpawnActor<ANextAvatar>(Position, Rotation);
 
 	Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> LoadedBundle) {
@@ -90,7 +80,11 @@ void AAvatarLoader::Load(const FString AvatarId, const FVector& Position, const 
 		for (auto& Item : LoadedBundle) {
 			UE_LOG(LogTemp, Warning, TEXT("LoadedBundle ==>> %s %lld %d %s"), *Item.Key, Item.Value.Index, Item.Value.Code, *Item.Value.Message);
 		}
-	}, [](const FString& Category) {
-		return false;
-	});
+
+		for (auto& Id : BundleIds) {
+			Avatar->AddBundleById(Id, [=](int32 Code, const FString& Message, int64 Index) {
+				UE_LOG(LogTemp, Warning, TEXT("AddBundleById  %s %d %s %lld"), *Id, Code, *Message, Index);
+			});
+		}	
+	}, RestoreFilter);
 }
