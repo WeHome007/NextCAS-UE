@@ -12,5 +12,11 @@
 				"CoreUObject"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "NextCAS-SDK",
+			"Enabled": true
+		}
 	]
 }
