@@ -5,7 +5,7 @@ set DEMO_ROOT=%~dp0
 mkdir "%DEMO_ROOT%\Plugins"
 
 rem Fetch NextCAS-SDK, SDK Plugin
-git clone git@118.31.50.10:tudou/NextCAS-SDK.git %DEMO_ROOT%\Plugins\NextCAS-SDK -b main
+git clone git@118.31.50.10:tudou/NextCAS-SDK.git %DEMO_ROOT%\Plugins\NextCAS-SDK -b sdk
 
 rem Fetch NHMiniZip, Zip Plugin
 rem git clone git@118.31.50.10:tudou/NHMiniZip.git %DEMO_ROOT%\Plugins\NHMiniZip -b main

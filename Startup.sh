@@ -4,7 +4,7 @@ DEMO_ROOT=`pwd`/`dirname $0`
 echo "DEMO_ROOT $DEMO_ROOT"
 
 # Fetch NextCAS-SDK, SDK Plugin
-git clone git@118.31.50.10:tudou/NextCAS-SDK.git ${DEMO_ROOT}/Plugins/NextCAS-SDK -b main
+git clone git@118.31.50.10:tudou/NextCAS-SDK.git ${DEMO_ROOT}/Plugins/NextCAS-SDK -b sdk
 
 # Fetch NHMiniZip, Zip Plugin
 # git clone git@118.31.50.10:tudou/NHMiniZip.git ${DEMO_ROOT}/Plugins/NHMiniZip -b main
