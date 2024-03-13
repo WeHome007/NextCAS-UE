@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "AvatarWrapper.h"
 #include "NextAvatar.h"
-#include "NHCommon.h"
 #include "AvatarLoader.generated.h"
 
 UCLASS()
@@ -26,14 +24,4 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
-	void Load(nexthuman::sdk::demo::FAvatarInfo AvatarInfo);
-
-	void Load(const FString AvatarId,
-		TArray<FString> BundleIds = {},
-		ANextAvatar::FRestoreFilter RestoreFilter = [=](const FString& Category) { return false; },
-		const FVector & Position = { 0, 0, 0 },
-		const FRotator & Rotation = { 0, 0, 0 });
-
-	TArray<nexthuman::sdk::demo::FAvatarWrapperPtr> AvatarWrappers;
 };
