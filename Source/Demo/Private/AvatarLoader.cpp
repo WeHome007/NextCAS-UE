@@ -19,17 +19,46 @@ AAvatarLoader::AAvatarLoader()
 void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
-	FString AccessToken = TEXT("dYQrr2AabBMpId92+MOYmnhUAEIDALcLWfdbgd4AJm8EL2P5t7laLVtfFukTkuAJVF6OZb7bDt6p8SBSpL6i3n+zdMTcxTUNHRPZM/uSVgXftkY4rZgP4PISS+I4RroCTFVTLzoKpDv9pHav3OUfX75GrjDkl6xOYfeH0Rtdp7DOTd5IY+utrKbxAZNQt9TE");
-	FString AvatarId = TEXT("avatar_205547");
+
+
+	FString AccessToken;
+	FParse::Value(FCommandLine::Get(), TEXT("-at="), AccessToken);
+	if (AccessToken.IsEmpty()) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("need argument(-at) to get accesstoken"));
+	}
+
+	FString DefaultAvatarId = TEXT("avatar_63edcef5ea719833f2b1eaff");
+	FString AvatarId;
+	FParse::Value(FCommandLine::Get(), TEXT("-aid="), AvatarId);
+	if (AvatarId.IsEmpty()) {
+		AvatarId = DefaultAvatarId;
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("argument(-aid) not specified，using default：%s"), *DefaultAvatarId));
+	}
+
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
+		// Initialize SDK
 		INextHumanSDKModule::Get().Initialize(AccessToken, [=](int32 Code, const FString& Message) {
 			if (Code == FNHError::SUCCESS) {
+
 				UE_LOG(LogTemp, Warning, TEXT("SDK Initialize %d %s %d"), Code, *Message, IsInGameThread());
 				UWorld* World = GetWorld();
 				ANextAvatar* Avatar = World->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
-				Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfo) {
 
+				// Load Avatar by Id
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("Avatar loading start：%s"), *AvatarId));
+				Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
+					FColor Color = Code == 0 ? FColor::Green : FColor::Red;
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, Color, FString::Printf(TEXT("Avatar loading end：%s %d %s"), *AvatarId, Code, *Message));
+					for (auto& BundleInfo : BundleInfos) {
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, Color, FString::Printf(TEXT("Bundle %s %d %s %d"), *BundleInfo.Value.Bundle.Id, BundleInfo.Value.Code, *BundleInfo.Value.Message, BundleInfo.Value.Index));
+					}
+
+					if (Code == FNHError::SUCCESS) {
+
+
+					}
 				});
+
 			}
 		});
 	}
