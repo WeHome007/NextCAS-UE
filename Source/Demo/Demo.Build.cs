@@ -12,6 +12,7 @@ public class Demo : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] { 
 			"NextHumanSDK",
+			"NextAgent"
 		});
 
 		// Uncomment if you are using Slate UI
