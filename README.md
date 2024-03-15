@@ -7,7 +7,7 @@
 3. 虚幻引擎（Unreal Engine）5.0.3
 
 ### SDK部署
-1. [请联系商务](https://nexthuman.cn/wiki/home)。
+1. 请联系[商务](https://nexthuman.cn/wiki/home)。
 2. 解压到虚幻引擎插件目录下，例如：Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 
 ### 获取鉴权令牌
