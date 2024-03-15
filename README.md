@@ -20,7 +20,7 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 1. 注册登录[开发者中心](https://nexthuman.cn/developer/#/login)。![](Assets/Login.png)
 2. 创建应用。![](Assets/Create_App.png)
 3. 获取AccessKey和AccessSecret。![](Assets/GetAppKey.png)
-4. 生成鉴权令牌的步骤参考[WebGL文档](https://nexthuman.cn/developer/#/open/docs/ue)中鉴权部分。
+4. 生成鉴权令牌的步骤参考[文档](https://nexthuman.cn/developer/#/open/docs/ue)中鉴权部分。
 
 ### Demo使用说明
  1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)
