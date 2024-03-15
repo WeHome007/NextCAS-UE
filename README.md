@@ -17,8 +17,8 @@
 4. 生成鉴权令牌的步骤参考[WebGL文档](https://nexthuman.cn/developer/#/open/docs/js)中鉴权部分。
 
 ### Demo使用说明
- 1. [获取Demo](https://github.com/WeHome007/NextCAS)
-    git pull 
+ 1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)
+    git pull git@github.com:WeHome007/NextCAS-UE.git
  2. 打包项目![](Assets/Package_Windows.png)
  3. 启动项目：
     Demo.exe -at "AccessToken" [-aid "AvatarId"] [-q "Question"]
