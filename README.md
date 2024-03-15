@@ -7,7 +7,7 @@
 3. 虚幻引擎（Unreal Engine）5.0.3
 
 ### SDK部署
-1. [下载SDK](https:://nexthuman.cn)。
+1. [请联系商务](https:://nexthuman.cn)。
 2. 解压到虚幻引擎插件目录下，例如：Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 
 ### 获取鉴权令牌
@@ -36,13 +36,28 @@
     r.SkinCache.CompileShaders=True
     r.SkinCache.DefaultBehavior=0
 
- ##### 2. DefaultGame.ini中确保以下设置：
+##### 2. DefaultGame.ini中确保以下设置：
     [/Script/UnrealEd.ProjectPackagingSettings]
     UsePakFile=True
     bUseIoStore=False
     bUseZenStore=False
     bShareMaterialShaderCode=False
     bSharedMaterialNativeLibraries=False
+
+##### 3. 项目的uproject文件中添加：
+	"Plugins": [
+		{
+			"Name": "NextCAS-SDK",
+			"Enabled": true
+		}
+	]
+
+##### 4. 引入虚拟人模块：
+    PrivateDependencyModuleNames.AddRange(new string[] { 
+        "NextHumanSDK", // 虚拟人
+        "NextAgent"     // AI问答
+    });
+
 
 #### 初始化
     #include "INextHumanSDK.h"
