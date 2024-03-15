@@ -1,7 +1,7 @@
 ## NextHuman UE超写实数字人
 
 ### 1、开发者中心
-该仓库为NextHuman对外提供的WebGL形式的数字人集成入口，如果需要其他引擎或数字人类型的集成，可根据需求前往以下不同入口：
+该仓库为NextHuman对外提供的UE形式的超写实/卡通数字人集成入口，如果需要其他引擎或数字人类型的集成，可根据需求前往以下不同入口：
 
 [UE4/UE5开发文档](https://nexthuman.cn/developer/#/open/docs/ue)
 
