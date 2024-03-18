@@ -1,4 +1,8 @@
-### NextCAS-SDK说明
+<img src="https://cdn.wehome.cn/cmn/jpeg/META-8NA66KC1-OYLELYLD6GZZBDJJRXAM3-CZSJKLNL-T3.jpeg?_t=2023111150" ></img>
+
+# NextHuman 超写实数字人
+
+### NextCAS-UE说明
 1. 基于虚幻引擎5.0.3，提供运行时的C++接口。该系列接口实现了虚拟人的加载、表情、动画、换装、捏脸、AI问答等功能。
 
 ### 开发环境推荐配置
@@ -7,14 +11,16 @@
 3. 虚幻引擎（Unreal Engine）5.0.3
 
 ### SDK部署
-1. 请联系[商务](https://nexthuman.cn/wiki/home)。
-2. 解压到虚幻引擎插件目录下，例如：Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
+1. 请联系我们：
+<img src="https://cdn.wehome.cn/cmn/jpeg/META-1OB66K71-OSKH427880QFC93P4K5J2-9KRUUARL-GK.jpeg" height="150" width="150"></img>
+2. 解压到虚幻引擎插件目录下，例如：
+Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 
 ### 获取鉴权令牌
 1. 注册登录[开发者中心](https://nexthuman.cn/developer/#/login)。![](Assets/Login.png)
 2. 创建应用。![](Assets/Create_App.png)
 3. 获取AccessKey和AccessSecret。![](Assets/GetAppKey.png)
-4. 生成鉴权令牌的步骤参考[WebGL文档](https://nexthuman.cn/developer/#/open/docs/js)中鉴权部分。
+4. 生成鉴权令牌的步骤参考[文档](https://nexthuman.cn/developer/#/open/docs/ue)中鉴权部分。
 
 ### Demo使用说明
  1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)
@@ -99,3 +105,11 @@
 
 #### 虚拟人捏脸
 测试中
+
+
+### 开发者中心
+该仓库为NextHuman对外提供的UE形式的超写实/卡通数字人集成入口，如果需要其他引擎或数字人类型的集成，可根据需求前往以下不同入口：
+
+[WebGL开发文档](https://nexthuman.cn/developer/#/open/docs/js)
+
+[Unity3D开发文档](https://nexthuman.cn/developer/#/open/docs/unity)
