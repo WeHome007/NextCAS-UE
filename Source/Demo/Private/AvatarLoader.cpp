@@ -60,7 +60,7 @@ void AAvatarLoader::BeginPlay()
 						bool AsSuccess = true;
 						for (auto& BundleInfo : BundleInfos) {
 							AsSuccess = AsSuccess && (BundleInfo.Value.Code == FNHError::SUCCESS || BundleInfo.Value.Code == FNHError::ERROR_RESTORE || BundleInfo.Value.Code == FNHError::ERROR_LOAD);
-							FString BundleInfoMessage = FString::Printf(TEXT("Bundle %s %d %s %d"), *BundleInfo.Value.Bundle.Id, BundleInfo.Value.Code, *BundleInfo.Value.Message, BundleInfo.Value.Index);
+							FString BundleInfoMessage = FString::Printf(TEXT("Bundle %s %d %s %d"), *(BundleInfo.Value.Bundle->GetId()), BundleInfo.Value.Code, *BundleInfo.Value.Message, BundleInfo.Value.Index);
 							UE_LOG(LogTemp, Warning, TEXT("%s"), *BundleInfoMessage);
 						}
 						UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %s"), AsSuccess ? TEXT("true") : TEXT("false"));
