@@ -3,7 +3,7 @@
 
 #include "AvatarLoader.h"
 #include "INextHumanSDK.h"
-#include "NHCategory.h"
+#include "NextHuman/NHCategory.h"
 #include "NHAgentComponent.h"
 
 using namespace nexthuman::sdk;
