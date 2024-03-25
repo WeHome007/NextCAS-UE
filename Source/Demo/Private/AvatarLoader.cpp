@@ -44,6 +44,9 @@ void AAvatarLoader::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("argument(-q) not specified，using default：%s"), *DefaultQuestion));
 	}
 
+	FString Filter;
+	FParse::Value(FCommandLine::Get(), TEXT("-filter="), Filter);
+
 	if (!INextHumanSDKModule::Get().IsInitialized()) {
 		// Initialize SDK
 		INextHumanSDKModule::Get().Initialize(AccessToken, [=](int32 Code, const FString& Message) {
@@ -89,6 +92,8 @@ void AAvatarLoader::BeginPlay()
 							Agent->Ask(Question);
 
 						}
+					}, [=](const FString& Category) {
+						return Filter.IsEmpty() || !Filter.Contains(Category, ESearchCase::IgnoreCase);
 					});
 
 				}
