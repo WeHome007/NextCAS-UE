@@ -63,7 +63,7 @@ void AAvatarLoader::BeginPlay()
 						bool AsSuccess = true;
 						for (auto& BundleInfo : BundleInfos) {
 							AsSuccess = AsSuccess && (BundleInfo.Value.Code == FNHError::SUCCESS || BundleInfo.Value.Code == FNHError::ERROR_RESTORE || BundleInfo.Value.Code == FNHError::ERROR_LOAD);
-							FString BundleInfoMessage = FString::Printf(TEXT("Bundle %s %d %s %d"), *(BundleInfo.Value.Bundle->GetId()), BundleInfo.Value.Code, *BundleInfo.Value.Message, BundleInfo.Value.Index);
+							FString BundleInfoMessage = FString::Printf(TEXT("Bundle Id(%s) Category(%s) Index(%lld) %d %s"), *(BundleInfo.Value.Bundle->GetId()), *BundleInfo.Value.Bundle->GetCategory(), BundleInfo.Value.Index, BundleInfo.Value.Code, *BundleInfo.Value.Message);
 							UE_LOG(LogTemp, Warning, TEXT("%s"), *BundleInfoMessage);
 						}
 						UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %s"), AsSuccess ? TEXT("true") : TEXT("false"));
@@ -82,8 +82,14 @@ void AAvatarLoader::BeginPlay()
 							}
 
 							// Bind Answer Callback
-							Agent->OnAnswer().BindLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
-								UE_LOG(LogTemp, Display, TEXT("Answer: %d, %s, %s"), Result.Code, *Result.Message, *Text);
+							Agent->OnAnswer().AddLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
+								
+								if (Result.Code == 0) {
+									UE_LOG(LogTemp, Display, TEXT("Answer Complete: %d %s %s"), Result.Code, *Result.Message, *Text);
+								}
+								else {
+									UE_LOG(LogTemp, Display, TEXT("Answer: %d, %s, %s"), Result.Code, *Result.Message, *Text);
+								}
 								GEngine->AddOnScreenDebugMessage(-1, 10.0f, Color, FString::Printf(TEXT("A：%s"), *Text));
 							});
 
