@@ -6,14 +6,15 @@
 1. 基于虚幻引擎5.0.3，提供运行时的C++接口。该系列接口实现了虚拟人的加载、表情、动画、换装、捏脸、AI问答等功能。
 
 ### 开发环境推荐配置
-1. Windows 10/11
-2. Visual Studio 2022/JetBrains Rider 2023
+1. Visual Studio 2022/JetBrains Rider 2023
+2. Windows SDK 10.0.22621.0
+3. MSVC v143 - VS 2022 C++ x64/x86 build tools 14.35.32215 ([不要使用MSVC v143 14.39](https://forums.unrealengine.com/t/unreal-engine-5-4-preview/1763516))
 3. 虚幻引擎（Unreal Engine）5.0.3
 
 ### SDK部署
-1. 请联系我们：<br/>
+1. 请联系我们：  <br/>
 <img src="https://cdn.wehome.cn/cmn/jpeg/META-1OB66K71-OSKH427880QFC93P4K5J2-9KRUUARL-GK.jpeg" height="150" width="150"></img><br/>
-3. 解压到虚幻引擎插件目录下，例如：
+3. 解压到虚幻引擎插件目录下，例如：  
 Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 
 ### 获取鉴权令牌
@@ -23,13 +24,13 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 4. 生成鉴权令牌的步骤参考[文档](https://nexthuman.cn/developer/#/open/docs/ue)中鉴权部分。
 
 ### Demo使用说明
- 1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)
+ 1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)  
     git pull git@github.com:WeHome007/NextCAS-UE.git
  2. 打包项目![](Assets/Package_Windows.png)
  3. 启动项目：
-    Demo.exe -at="AccessToken" [-aid="AvatarId"] [-q="Question"]
-    -at: 使用“获取鉴权令牌”步骤中生成的令牌
-    -aid: 形象ID。参数不输入则使用默认值，具体看Demo代码。
+    Demo.exe -at="AccessToken" [-aid="AvatarId"] [-q="Question"]  
+    -at: 使用“获取鉴权令牌”步骤中生成的令牌  
+    -aid: 形象ID。参数不输入则使用默认值，具体看Demo代码。  
     -q：Demo启动后，向虚拟人提的问题。
 
 ### 项目集成说明
