@@ -27,7 +27,7 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
     git pull git@github.com:WeHome007/NextCAS-UE.git
  2. 打包项目![](Assets/Package_Windows.png)
  3. 启动项目：
-    Demo.exe -at "AccessToken" [-aid "AvatarId"] [-q "Question"]
+    Demo.exe -at="AccessToken" [-aid="AvatarId"] [-q="Question"]
     -at: 使用“获取鉴权令牌”步骤中生成的令牌
     -aid: 形象ID。参数不输入则使用默认值，具体看Demo代码。
     -q：Demo启动后，向虚拟人提的问题。
