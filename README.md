@@ -26,7 +26,8 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 ### Demo使用说明
  1. [获取Demo](https://github.com/WeHome007/NextCAS-UE)  
     git pull git@github.com:WeHome007/NextCAS-UE.git
- 2. 打包项目![](Assets/Package_Windows.png)
+ 2. 打包项目(!!!由于所有模型资产都是pak在中。目前只能打包后运行才能正常加载!!!)
+ ![](Assets/Package_Windows.png)
  3. 启动项目：
     Demo.exe -at="AccessToken" [-aid="AvatarId"] [-q="Question"]  
     -at: 使用“获取鉴权令牌”步骤中生成的令牌  
@@ -42,6 +43,15 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
     r.SkinCache.BlendUsingVertexColorForRecomputeTangents=2
     r.SkinCache.CompileShaders=True
     r.SkinCache.DefaultBehavior=0
+    SkeletalMesh.UseExperimentalChunking=1
+    r.PostProcessing.PropagateAlpha=2
+    r.DefaultBackBufferPixelFormat=4
+    r.Streaming.PoolSize=5000
+
+    [ConsoleVariables]
+    fx.Niagara.ForceLastTickGroup=1
+    r.streaming.MaxTempMemoryAllowed=100
+
 
 ##### 2. DefaultGame.ini中确保以下设置：
     [/Script/UnrealEd.ProjectPackagingSettings]
@@ -102,11 +112,73 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
     Agent->Ask(Question);
 
 #### 虚拟人换装
+##### 1. 添加/移除
+    Avatar->AddBundleById(TEXT("xxxx"), [=](int32 Code, const FString& Message, int64 Index) {
+        if (Code == FNHError::SUCCESS) { // 添加成功
+            // 使用添加返回的索引值来删除
+            Avatar->RemoveBundle(Index);
+        }
+    });
+
+    Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
+        for (auto& BundleInfo : BundleInfos) {
+            // 使用设置AvatarId返回的索引值来删除
+            Avatar->RemoveBundle(BundleInfo.Value.Index);
+        }
+    });
+
+##### 2. 材质修改
 测试中
 
 #### 虚拟人捏脸
+##### 1. 支持的分类（NextHuman/NHCategory.h），体型（bodyshape暂不开放）：
+    static const FString CATEGORY_MORPH_HEAD = TEXT("headshape");
+    static const FString CATEGORY_MORPH_FACE = TEXT("faceshape");
+    static const FString CATEGORY_MORPH_EYES = TEXT("eyeshape");
+    static const FString CATEGORY_MORPH_EARS = TEXT("earshape");
+    static const FString CATEGORY_MORPH_NOSE = TEXT("noseshape");
+    static const FString CATEGORY_MORPH_MOUTH = TEXT("mouthshape");
+    static const FString CATEGORY_MORPH_TEETH = TEXT("teethshape");
+
+##### 2. 各分类支持的参数可查询对应的头文件：
+    TEXT("headshape")   NH01HeadMorphPayload.h
+    TEXT("faceshape")   NH01FaceMorphPayload.h
+    TEXT("eyeshape")    NH01EyesMorphPayload.h
+    TEXT("earshape")    NH01EarsMorphPayload.h
+    TEXT("noseshape")   NH01NoseMorphPayload.h
+    TEXT("mouthshape")  NH01MouthMorphPayload.h
+    TEXT("teethshape")  NH01TeethMorphPayload.h
+
+##### 3. 以改变面部宽度为例，对应的分类是CATEGORY_MORPH_FACE，参数名是Width：
+    Avatar->ChangeMorph(CATEGORY_MORPH_FACE, "width", 1.0f);
+
+##### 4. 明星脸
 测试中
 
+#### 测试用命令行
+##### 运行后，按“`”打开
+##### 1. 移除形象
+    nexthuman.sdk.test -test=Avatar -action=destroy -avatarindex=0
+    avatarindex: 按照添加顺序获得的索引值
+
+##### 2. 创建形象
+    nexthuman.sdk.test -test=Avatar -action=create -id=avatar_205547 -x=0 -y=50 -z=0 -pitch=45 -roll=45 -yaw=45
+    id：形象id
+    x，y，z：位置
+    pitch，roll，yaw：旋转
+
+##### 3. 添加移除服装/道具
+    nexthuman.sdk.test -test=Avatar -action=addbundle -avatarindex=0 -bundleid=hat_6257c5387c8c5f5a0aef2d12
+    bundleid：服装/道具的id
+
+    nexthuman.sdk.test -test=Avatar -action=removebundle -avatarindex=0 -bundleindex=5
+    bundleindex: 添加时返回的索引值
+
+##### 4. 捏脸
+    nexthuman.sdk.test -test=Avatar -action=changemorph -avatarindex=0 -category=faceshape -key=width -value=1.0
+    category：分类
+    key：值名称
+    value：值
 
 ### 开发者中心
 该仓库为NextHuman对外提供的UE形式的超写实/卡通数字人集成入口，如果需要其他引擎或数字人类型的集成，可根据需求前往以下不同入口：
@@ -114,3 +186,10 @@ Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 [WebGL开发文档](https://nexthuman.cn/developer/#/open/docs/js)
 
 [Unity3D开发文档](https://nexthuman.cn/developer/#/open/docs/unity)
+
+### 更新
+#### 2024-04-12
+##### 1. 修复ait无效时，程序闪退
+##### 2. 换装接口测试完成，对应文档更新
+##### 3. 捏脸接口测试完成，对应文档更新
+##### 4. 增加测试命令行
