@@ -21,11 +21,12 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 
+	float TimeToDisplay = 20.0F;
 
 	FString AccessToken;
 	FParse::Value(FCommandLine::Get(), TEXT("-at="), AccessToken);
 	if (AccessToken.IsEmpty()) {
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("need argument(-at) to get accesstoken"));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, TEXT("need argument(-at) to get accesstoken"));
 	}
 
 	FString DefaultAvatarId = TEXT("avatar_63edcef5ea719833f2b1eaff");
@@ -33,7 +34,7 @@ void AAvatarLoader::BeginPlay()
 	FParse::Value(FCommandLine::Get(), TEXT("-aid="), AvatarId);
 	if (AvatarId.IsEmpty()) {
 		AvatarId = DefaultAvatarId;
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("argument(-aid) not specified，using default：%s"), *DefaultAvatarId));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, FString::Printf(TEXT("argument(-aid) not specified，using default：%s"), *DefaultAvatarId));
 	}
 
 	FString DefaultQuestion = TEXT("你好！");
@@ -41,7 +42,7 @@ void AAvatarLoader::BeginPlay()
 	FParse::Value(FCommandLine::Get(), TEXT("-q="), Question);
 	if (Question.IsEmpty()) {
 		Question = DefaultQuestion;
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("argument(-q) not specified，using default：%s"), *DefaultQuestion));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, FString::Printf(TEXT("argument(-q) not specified，using default：%s"), *DefaultQuestion));
 	}
 
 	FString Filter;
@@ -58,7 +59,7 @@ void AAvatarLoader::BeginPlay()
 					ANextAvatar* Avatar = World->SpawnActor<ANextAvatar>(FVector(0, 0, 0), FRotator(0, 0, 0));
 
 					// Load Avatar by Id
-					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("Avatar loading start：%s"), *AvatarId));
+					GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Blue, FString::Printf(TEXT("Avatar loading start：%s"), *AvatarId));
 					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
 						bool AsSuccess = true;
 						for (auto& BundleInfo : BundleInfos) {
@@ -68,7 +69,7 @@ void AAvatarLoader::BeginPlay()
 						}
 						UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %s"), AsSuccess ? TEXT("true") : TEXT("false"));
 						FColor Color = AsSuccess ? FColor::Green : FColor::Red;
-						GEngine->AddOnScreenDebugMessage(-1, 10.0f, Color, FString::Printf(TEXT("Avatar loading end：%s %d %s"), *AvatarId, Code, *Message));
+						GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, Color, FString::Printf(TEXT("Avatar loading end：%s %d %s"), *AvatarId, Code, *Message));
 
 						if (AsSuccess) {
 
@@ -90,11 +91,11 @@ void AAvatarLoader::BeginPlay()
 								else {
 									UE_LOG(LogTemp, Display, TEXT("Answer: %d, %s, %s"), Result.Code, *Result.Message, *Text);
 								}
-								GEngine->AddOnScreenDebugMessage(-1, 10.0f, Color, FString::Printf(TEXT("A：%s"), *Text));
+								GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, Color, FString::Printf(TEXT("A：%s"), *Text));
 							});
 
 							// Ask Question
-							GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Black, FString::Printf(TEXT("Q: %s"), *Question));
+							GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Black, FString::Printf(TEXT("Q: %s"), *Question));
 							Agent->Ask(Question);
 
 						}
@@ -103,6 +104,9 @@ void AAvatarLoader::BeginPlay()
 					});
 
 				}
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, FString::Printf(TEXT("SDK init failed：%s"), *Message));
 			}
 		});
 	}
