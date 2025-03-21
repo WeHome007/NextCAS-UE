@@ -150,7 +150,7 @@ D:\UE_5.0\Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 ```
 ###### 说话
 ```C++
-    // Question: 提问的文本
+    // Question: 说话的内容
     // ActorId：开发者后台智能体的Id
     // FaceModel："richu" for male, "beibei" for female
     Agent->Speak(Content, TEXT("641811add41a3f2f91247ae8"), TEXT("beibei"));
