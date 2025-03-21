@@ -5,8 +5,12 @@
 #include "INextHumanSDK.h"
 #include "NextHuman/NHCategory.h"
 #include "NHAgentComponent.h"
+#include "NHSpeakerComponent.h"
+#include "Blueprint/UserWidget.h"
 
 using namespace nexthuman::sdk;
+
+const float TimeToDisplay = 20.0F;
 
 // Sets default values
 AAvatarLoader::AAvatarLoader()
@@ -21,7 +25,6 @@ void AAvatarLoader::BeginPlay()
 {
 	Super::BeginPlay();
 
-	float TimeToDisplay = 20.0F;
 
 	FString AccessToken;
 	FParse::Value(FCommandLine::Get(), TEXT("-at="), AccessToken);
@@ -37,13 +40,23 @@ void AAvatarLoader::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, FString::Printf(TEXT("argument(-aid) not specified，using default：%s"), *DefaultAvatarId));
 	}
 
-	FString DefaultQuestion = TEXT("你好！");
-	FString Question;
-	FParse::Value(FCommandLine::Get(), TEXT("-q="), Question);
-	if (Question.IsEmpty()) {
-		Question = DefaultQuestion;
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, FString::Printf(TEXT("argument(-q) not specified，using default：%s"), *DefaultQuestion));
-	}
+	bool IsTestSpeak = FParse::Param(FCommandLine::Get(), TEXT("testspeak"));
+	bool IsTestAsk = FParse::Param(FCommandLine::Get(), TEXT("testask"));
+	UE_LOG(LogTemp, Display, TEXT("-testspeak=%d -testask=%d"), IsTestSpeak, IsTestAsk);
+
+	UWorld* W1 = GetWorld();
+	APlayerController* PlayerController = W1->GetFirstPlayerController();
+	
+	UClass* MyWidgetClass = LoadClass<UClass>(nullptr, TEXT("WidgetBlueprint'/Game/Input/TextInput.TextInput'"));
+	UE_LOG(LogTemp, Display, TEXT("Add Widget %p and %p"), PlayerController, MyWidgetClass);
+	//if (PlayerController && MyWidgetClass) {
+	//	UUserWidget* MyWidget = CreateWidget<UUserWidget>(PlayerController, MyWidgetClass);
+	//	if (MyWidget) {
+	//		UE_LOG(LogTemp, Display, TEXT("My Widget Added"));
+	//		MyWidget->AddToViewport();
+	//	}
+	//}
+	//
 
 	FString Filter;
 	FParse::Value(FCommandLine::Get(), TEXT("-filter="), Filter);
@@ -61,43 +74,13 @@ void AAvatarLoader::BeginPlay()
 					// Load Avatar by Id
 					GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Blue, FString::Printf(TEXT("Avatar loading start：%s"), *AvatarId));
 					Avatar->SetAvatarId(AvatarId, [=](int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
-						bool AsSuccess = true;
-						for (auto& BundleInfo : BundleInfos) {
-							AsSuccess = AsSuccess && (BundleInfo.Value.Code == FNHError::SUCCESS || BundleInfo.Value.Code == FNHError::ERROR_RESTORE || BundleInfo.Value.Code == FNHError::ERROR_LOAD);
-							FString BundleInfoMessage = FString::Printf(TEXT("Bundle Id(%s) Category(%s) Index(%lld) %d %s"), *(BundleInfo.Value.Bundle->GetId()), *BundleInfo.Value.Bundle->GetCategory(), BundleInfo.Value.Index, BundleInfo.Value.Code, *BundleInfo.Value.Message);
-							UE_LOG(LogTemp, Warning, TEXT("%s"), *BundleInfoMessage);
-						}
-						UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %s"), AsSuccess ? TEXT("true") : TEXT("false"));
-						FColor Color = AsSuccess ? FColor::Green : FColor::Red;
-						GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, Color, FString::Printf(TEXT("Avatar loading end：%s %d %s"), *AvatarId, Code, *Message));
-
-						if (AsSuccess) {
-
-							// Get or Create Agent
-							UNHAgentComponent* Agent = Cast<UNHAgentComponent>(Avatar->GetComponentByClass(UNHAgentComponent::StaticClass()));
-							if (!Agent) {
-								Agent = NewObject<UNHAgentComponent>(Avatar);
-								Agent->ComponentTags.Add(TEXT("CtrlFBF"));
-								Agent->RegisterComponent();
-								Agent->AttachToComponent(Avatar->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+						if (CheckResult(AvatarId, Code, Message, BundleInfos)) {
+							if (IsTestSpeak) {
+								TestSpeak(Avatar);
 							}
-
-							// Bind Answer Callback
-							Agent->OnAnswer().AddLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
-								
-								if (Result.Code == 0) {
-									UE_LOG(LogTemp, Display, TEXT("Answer Complete: %d %s %s"), Result.Code, *Result.Message, *Text);
-								}
-								else {
-									UE_LOG(LogTemp, Display, TEXT("Answer: %d, %s, %s"), Result.Code, *Result.Message, *Text);
-								}
-								GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, Color, FString::Printf(TEXT("A：%s"), *Text));
-							});
-
-							// Ask Question
-							GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Black, FString::Printf(TEXT("Q: %s"), *Question));
-							Agent->Ask(Question);
-
+							else if (IsTestAsk) {
+								TestAsk(Avatar);
+							}
 						}
 					}, [=](const FString& Category) {
 						return Filter.IsEmpty() || !Filter.Contains(Category, ESearchCase::IgnoreCase);
@@ -110,6 +93,77 @@ void AAvatarLoader::BeginPlay()
 			}
 		});
 	}
+}
+
+void AAvatarLoader::TestAsk(ANextAvatar* Avatar) {
+	FString DefaultQuestion = TEXT("你好！");
+	FString Question;
+	FParse::Value(FCommandLine::Get(), TEXT("-q="), Question);
+	if (Question.IsEmpty()) {
+		Question = DefaultQuestion;
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, FString::Printf(TEXT("argument(-q) not specified，using default：%s"), *DefaultQuestion));
+	}
+
+	// Get or Create Agent
+	UNHAgentComponent* Agent = Cast<UNHAgentComponent>(Avatar->GetComponentByClass(UNHAgentComponent::StaticClass()));
+	if (!Agent) {
+		Agent = NewObject<UNHAgentComponent>(Avatar);
+		Agent->ComponentTags.Add(TEXT("CtrlFBF"));
+		Agent->RegisterComponent();
+		Agent->AttachToComponent(Avatar->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	}
+
+	// Bind Answer Callback
+	Agent->OnAnswer().AddLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
+
+		if (Result.Code == 0) {
+			UE_LOG(LogTemp, Display, TEXT("Answer Complete: %d %s %s"), Result.Code, *Result.Message, *Text);
+		}
+		else {
+			UE_LOG(LogTemp, Display, TEXT("Answer: %d, %s, %s"), Result.Code, *Result.Message, *Text);
+		}
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Black, FString::Printf(TEXT("A：%s"), *Text));
+	});
+
+	// Ask Question
+	GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Black, FString::Printf(TEXT("Q: %s"), *Question));
+	Agent->Ask(Question);
+}
+
+const FString Content = TEXT("明月几时有？把酒问青天。 不知天上宫阙，今夕是何年。 我欲乘风归去，又恐琼楼玉宇，高处不胜寒。 起舞弄清影，何似在人间。转朱阁，低绮户，照无眠。 不应有恨，何事长向别时圆？ 人有悲欢离合，月有阴晴圆缺，此事古难全。 但愿人长久，千里共婵娟。");
+
+void AAvatarLoader::TestSpeak(ANextAvatar* Avatar) {
+	// Get or Create Agent
+	UNHSpeakerComponent* Agent = Cast<UNHSpeakerComponent>(Avatar->GetComponentByClass(UNHSpeakerComponent::StaticClass()));
+	if (!Agent) {
+		Agent = NewObject<UNHSpeakerComponent>(Avatar);
+		Agent->ComponentTags.Add(TEXT("CtrlFBF"));
+		Agent->RegisterComponent();
+		Agent->AttachToComponent(Avatar->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	}
+
+	// Bind Answer Callback
+	Agent->OnComplete().Clear();
+	Agent->OnComplete().AddLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
+		UE_LOG(LogTemp, Display, TEXT("Speak complete: %d, %s, %s"), Result.Code, *Result.Message, *Text);
+		Agent->Speak(Content);
+	});
+
+	// Ask Question
+	Agent->Speak(Content);
+}
+
+bool AAvatarLoader::CheckResult(const FString& AvatarId, int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos) {
+	bool AsSuccess = true;
+	for (auto& BundleInfo : BundleInfos) {
+		AsSuccess = AsSuccess && (BundleInfo.Value.Code == FNHError::SUCCESS || BundleInfo.Value.Code == FNHError::ERROR_RESTORE || BundleInfo.Value.Code == FNHError::ERROR_LOAD);
+		FString BundleInfoMessage = FString::Printf(TEXT("Bundle Id(%s) Category(%s) Index(%lld) %d %s"), *(BundleInfo.Value.Bundle->GetId()), *BundleInfo.Value.Bundle->GetCategory(), BundleInfo.Value.Index, BundleInfo.Value.Code, *BundleInfo.Value.Message);
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *BundleInfoMessage);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("SetAvatarId %s"), AsSuccess ? TEXT("true") : TEXT("false"));
+	FColor Color = AsSuccess ? FColor::Green : FColor::Red;
+	GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, Color, FString::Printf(TEXT("Avatar loading end：%s %d %s"), *AvatarId, Code, *Message));
+	return AsSuccess;
 }
 
 // Called every frame

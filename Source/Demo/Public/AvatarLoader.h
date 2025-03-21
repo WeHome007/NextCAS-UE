@@ -24,4 +24,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool CheckResult(const FString& AvatarId, int32 Code, const FString& Message, TMap<FString, ANextAvatar::FBundleInfo> BundleInfos);
+	void TestAsk(ANextAvatar* Avatar);
+	void TestSpeak(ANextAvatar* Avatar);
+
 };
