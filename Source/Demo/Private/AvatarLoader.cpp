@@ -146,7 +146,7 @@ void AAvatarLoader::TestSpeak(ANextAvatar* Avatar) {
 	Agent->OnComplete().Clear();
 	Agent->OnComplete().AddLambda([=](nexthuman::sdk::FNHError Result, const FString& Text) {
 		UE_LOG(LogTemp, Display, TEXT("Speak complete: %d, %s, %s"), Result.Code, *Result.Message, *Text);
-		Agent->Speak(Content);
+		Agent->Speak(Content, TEXT("641811add41a3f2f91247ae8"), TEXT("beibei"));
 	});
 
 	// Ask Question
