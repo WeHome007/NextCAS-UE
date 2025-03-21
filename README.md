@@ -14,6 +14,9 @@
 ### SDK部署
 1. 请联系我们：  <br/>
 <img src="https://cdn.wehome.cn/cmn/jpeg/META-1OB66K71-OSKH427880QFC93P4K5J2-9KRUUARL-GK.jpeg" height="150" width="150"></img><br/>
+2. https://pan.baidu.com/s/1CGra1nI5MLpk8z2EWDzfAA?pwd=5mob
+  插件：NextCAS-SDK_2025_03_21.zip
+  Demo的可执行文件：Demo_2025_03_21.zip
 3. 解压到虚幻引擎安装目录中的插件目录下，例如：
 D:\UE_5.0\Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 
