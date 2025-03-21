@@ -107,6 +107,7 @@ D:\UE_5.0\Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
 ```
 
 #### 虚拟人对话
+问答和说话在同一个Avatar上同时只能使用一个。
 ##### 1. 问答
 ###### 初始化
 ```C++
@@ -235,6 +236,9 @@ D:\UE_5.0\Engine\Plugins\Marketplace\NextCAS-SDK\NextCAS-SDK.uplugin
     category：分类
     key：值名称
     value：值
+
+##### 5. 说话
+    nexthuman.sdk.test -test=avatar -action=speak -avatarindex=0 -question="English Only"
 
 ### 开发者中心
 该仓库为NextHuman对外提供的UE形式的超写实/卡通数字人集成入口，如果需要其他引擎或数字人类型的集成，可根据需求前往以下不同入口：
